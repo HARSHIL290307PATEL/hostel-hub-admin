@@ -4,6 +4,7 @@ import { Upload, Download, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Student } from '@/types';
 import { toast } from 'sonner';
+import { cn } from '@/lib/utils';
 
 interface BulkUpdateProps {
     students: Student[];
@@ -61,34 +62,36 @@ export const BulkUpdate = ({ students, onUpdate }: BulkUpdateProps) => {
     }, [onUpdate]);
 
     return (
-        <div className="space-y-6">
-            <div className="bg-card rounded-xl p-6 shadow-sm border space-y-4">
-                <div className="flex items-start gap-4">
-                    <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                        <FileSpreadsheet className="w-8 h-8 text-green-600 dark:text-green-400" />
+        <div className="space-y-6 animate-fade-in">
+            <div className="space-y-6">
+                <div className="flex items-start gap-5">
+                    <div className="w-16 h-16 bg-success/10 rounded-2xl flex items-center justify-center shrink-0">
+                        <FileSpreadsheet className="w-10 h-10 text-success" />
                     </div>
-                    <div>
-                        <h3 className="font-semibold text-lg">Bulk Update via Excel</h3>
-                        <p className="text-muted-foreground text-sm mt-1">
-                            Download the current data, edit in Excel, and upload to update multiple records at once.
+                    <div className="space-y-1">
+                        <h3 className="font-extrabold text-2xl text-foreground tracking-tight">Excel Integration</h3>
+                        <p className="text-muted-foreground font-medium text-sm leading-relaxed">
+                            Manage your entire database efficiently using standard Excel templates. Download, edit, and re-upload with ease.
                         </p>
                     </div>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                     <Button
                         variant="outline"
-                        className="h-auto py-4 flex flex-col items-center gap-2 border-dashed border-2 hover:bg-muted/50"
+                        className="h-auto py-8 flex flex-col items-center gap-4 bg-white border-2 border-dashed border-border/50 hover:border-primary/50 hover:bg-primary/5 rounded-[2rem] transition-all group"
                         onClick={handleDownload}
                     >
-                        <Download className="w-6 h-6 text-primary" />
+                        <div className="p-4 bg-primary/10 rounded-2xl group-hover:scale-110 transition-transform">
+                            <Download className="w-8 h-8 text-primary" />
+                        </div>
                         <div className="text-center">
-                            <span className="font-medium block">Download Excel</span>
-                            <span className="text-xs text-muted-foreground">Current Database</span>
+                            <span className="font-extrabold text-lg block text-foreground">Extract Data</span>
+                            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 block">Download current database</span>
                         </div>
                     </Button>
 
-                    <div className="relative">
+                    <div className="relative group">
                         <input
                             type="file"
                             accept=".xlsx,.xls"
@@ -97,23 +100,37 @@ export const BulkUpdate = ({ students, onUpdate }: BulkUpdateProps) => {
                         />
                         <Button
                             variant="outline"
-                            className="w-full h-full min-h-[5rem] flex flex-col items-center justify-center gap-2 border-dashed border-2 hover:bg-muted/50"
+                            className="w-full h-full py-8 flex flex-col items-center justify-center gap-4 bg-white border-2 border-dashed border-border/50 hover:border-success/50 hover:bg-success/5 rounded-[2rem] transition-all"
                         >
-                            <Upload className="w-6 h-6 text-primary" />
+                            <div className="p-4 bg-success/10 rounded-2xl group-hover:scale-110 transition-transform">
+                                <Upload className="w-8 h-8 text-success" />
+                            </div>
                             <div className="text-center">
-                                <span className="font-medium block">Upload Edited Excel</span>
-                                <span className="text-xs text-muted-foreground">Click or Drag & Drop</span>
+                                <span className="font-extrabold text-lg block text-foreground">Import List</span>
+                                <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1 block">Upload edited template</span>
                             </div>
                         </Button>
                     </div>
                 </div>
 
-                <div className="bg-muted/50 p-4 rounded-lg text-xs space-y-2">
-                    <p className="font-medium">Instructions:</p>
-                    <ul className="list-disc list-inside space-y-1 text-muted-foreground">
-                        <li>Do not modify the <strong>id</strong> column for existing students.</li>
-                        <li>Add new rows with unique IDs to add new students.</li>
-                        <li>Ensure dates are in <strong>YYYY-MM-DD</strong> format.</li>
+                <div className="bg-muted/30 border border-border/50 p-6 rounded-3xl space-y-4">
+                    <p className="font-bold text-sm flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+                        Optimization Guidelines
+                    </p>
+                    <ul className="space-y-3 text-sm font-medium text-muted-foreground">
+                        <li className="flex items-start gap-4">
+                            <span className="w-6 h-6 rounded-lg bg-white border border-border flex items-center justify-center text-[10px] font-bold shrink-0">01</span>
+                            <span>Do not modify the <strong className="text-foreground">ID</strong> column for existing student records.</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <span className="w-6 h-6 rounded-lg bg-white border border-border flex items-center justify-center text-[10px] font-bold shrink-0">02</span>
+                            <span>Add new entries by providing unique identifiers in the first column.</span>
+                        </li>
+                        <li className="flex items-start gap-3">
+                            <span className="w-6 h-6 rounded-lg bg-white border border-border flex items-center justify-center text-[10px] font-bold shrink-0">03</span>
+                            <span>Maintain dates in the <strong className="text-foreground">YYYY-MM-DD</strong> standard format.</span>
+                        </li>
                     </ul>
                 </div>
             </div>

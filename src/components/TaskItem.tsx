@@ -1,4 +1,4 @@
-import { Calendar, Check, Clock } from 'lucide-react';
+import { Calendar, Check, Clock, Tag } from 'lucide-react';
 import { Task } from '@/types';
 import { cn } from '@/lib/utils';
 
@@ -13,50 +13,55 @@ export const TaskItem = ({ task, onToggle }: TaskItemProps) => {
   return (
     <div
       className={cn(
-        "flex items-center gap-4 p-4 bg-card rounded-xl shadow-card transition-all duration-200 animate-fade-in",
-        isPending && "border-l-4 border-warning"
+        "flex items-center gap-4 p-5 bg-white border border-border/50 rounded-2xl shadow-soft transition-all duration-300 hover:shadow-soft-lg animate-fade-in group",
+        isPending ? "border-l-4 border-warning" : "border-l-4 border-success opacity-80"
       )}
     >
       <button
         onClick={onToggle}
         className={cn(
-          "w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-200",
+          "w-7 h-7 rounded-xl border-2 flex items-center justify-center transition-all duration-300 shrink-0",
           isPending
-            ? "border-muted-foreground hover:border-success hover:bg-success/10"
-            : "border-success bg-success text-success-foreground"
+            ? "border-muted-foreground/30 hover:border-success hover:bg-success/10 group-hover:scale-110"
+            : "border-success bg-success text-white shadow-sm"
         )}
       >
-        {!isPending && <Check className="w-4 h-4" />}
+        {!isPending && <Check className="w-4 h-4 stroke-[3]" />}
       </button>
+
       <div className="flex-1 min-w-0">
         <h3
           className={cn(
-            "font-medium truncate",
-            !isPending && "text-muted-foreground line-through"
+            "text-lg font-bold truncate tracking-tight transition-all duration-300",
+            !isPending ? "text-muted-foreground line-through decoration-muted-foreground/30" : "text-foreground"
           )}
         >
           {task.title}
         </h3>
-        <div className="flex items-center gap-3 mt-1">
-          <span className="inline-flex items-center gap-1 text-xs text-muted-foreground">
-            <Calendar className="w-3 h-3" />
+        <div className="flex flex-wrap items-center gap-3 mt-1.5">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground bg-muted/30 px-2.5 py-1 rounded-lg">
+            <Calendar className="w-3.5 h-3.5" />
             {task.dueDate}
           </span>
-          <span className="text-xs text-muted-foreground bg-muted px-2 py-0.5 rounded">
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-primary bg-primary/5 px-2.5 py-1 rounded-lg border border-primary/10 uppercase tracking-tighter">
+            <Tag className="w-3.5 h-3.5" />
             {task.category}
           </span>
         </div>
       </div>
-      <span
-        className={cn(
-          "px-2 py-1 text-xs font-medium rounded-full",
-          isPending
-            ? "bg-warning/10 text-warning"
-            : "bg-success/10 text-success"
-        )}
-      >
-        {isPending ? 'Pending' : 'Done'}
-      </span>
+
+      <div className="hidden sm:block shrink-0">
+        <span
+          className={cn(
+            "px-3 py-1 text-[10px] font-bold rounded-full uppercase tracking-widest border",
+            isPending
+              ? "bg-warning/5 text-warning border-warning/10"
+              : "bg-success/5 text-success border-success/10"
+          )}
+        >
+          {isPending ? 'Pending' : 'Completed'}
+        </span>
+      </div>
     </div>
   );
 };

@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { DoorOpen, CreditCard, CheckSquare, ChevronRight, Plus } from 'lucide-react';
+import { DoorOpen, CreditCard, CheckSquare, ChevronRight, Plus, Tags } from 'lucide-react';
 import { AppHeader } from '@/components/AppHeader';
 import { Button } from '@/components/ui/button';
 import { mockCategories } from '@/data/mockData';
+import { cn } from '@/lib/utils';
 
 type CategoryType = 'room' | 'fee' | 'task';
 
@@ -18,12 +19,21 @@ const Categories = () => {
   const filteredCategories = mockCategories.filter(cat => cat.type === activeTab);
 
   return (
-    <div className="min-h-screen bg-background pb-6">
-      <AppHeader title="Categories" />
+    <div className="min-h-screen bg-background pb-20 relative animate-fade-in">
+      <AppHeader title="Hostel Hub" />
 
-      <main className="p-4 space-y-4 max-w-7xl mx-auto">
+      <main className="p-4 md:p-6 space-y-8 max-w-5xl mx-auto">
+        {/* Header Section */}
+        <div className="space-y-1">
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-3">
+            <Tags className="w-8 h-8 text-primary" />
+            Categories
+          </h2>
+          <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">Organize and manage your hostel data</p>
+        </div>
+
         {/* Tabs */}
-        <div className="flex gap-2 bg-muted p-1 rounded-lg">
+        <div className="flex p-1.5 bg-muted/30 backdrop-blur-sm rounded-2xl border border-border/50 shadow-sm w-full">
           {categoryTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.type;
@@ -31,10 +41,12 @@ const Categories = () => {
               <button
                 key={tab.type}
                 onClick={() => setActiveTab(tab.type)}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all duration-200 ${isActive
-                  ? 'bg-card text-foreground shadow-sm'
-                  : 'text-muted-foreground hover:text-foreground'
-                  }`}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-sm font-bold transition-all duration-300",
+                  isActive
+                    ? "bg-primary text-white shadow-soft"
+                    : "text-muted-foreground hover:text-foreground hover:bg-white/50"
+                )}
               >
                 <Icon className="w-4 h-4" />
                 {tab.label}
@@ -44,38 +56,39 @@ const Categories = () => {
         </div>
 
         {/* Category List */}
-        <div className="space-y-3">
+        <div className="space-y-4 mb-20">
           {filteredCategories.map((category, index) => (
             <div
               key={category.id}
-              className="flex items-center gap-4 p-4 bg-card rounded-xl shadow-card animate-fade-in"
+              className="flex items-center gap-4 p-5 bg-white border border-border/50 rounded-2xl shadow-soft transition-all duration-300 hover:shadow-soft-lg group animate-fade-in"
               style={{ animationDelay: `${index * 50}ms` }}
             >
-              <div className="w-10 h-10 rounded-full bg-accent/10 flex items-center justify-center">
-                <span className="text-accent font-semibold text-sm">
+              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:scale-110 transition-transform">
+                <span className="text-primary font-bold text-xl">
                   {category.name.charAt(0)}
                 </span>
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-foreground">{category.name}</h3>
+                <h3 className="text-lg font-bold text-foreground tracking-tight">{category.name}</h3>
                 {category.description && (
-                  <p className="text-sm text-muted-foreground">{category.description}</p>
+                  <p className="text-sm font-medium text-muted-foreground mt-0.5">{category.description}</p>
                 )}
               </div>
-              <ChevronRight className="w-5 h-5 text-muted-foreground" />
+              <div className="w-8 h-8 rounded-full bg-muted/50 flex items-center justify-center group-hover:bg-primary group-hover:text-white transition-all">
+                <ChevronRight className="w-5 h-5 flex-shrink-0" />
+              </div>
             </div>
           ))}
         </div>
 
         {/* FAB */}
         <Button
-          className="fixed bottom-24 right-4 w-14 h-14 rounded-full shadow-lg"
+          className="fixed bottom-8 right-8 w-16 h-16 rounded-2xl shadow-soft-lg bg-primary hover:bg-primary/90 hover:scale-[1.1] active:scale-[0.9] transition-all z-50 group"
           size="icon"
         >
-          <Plus className="w-6 h-6" />
+          <Plus className="w-8 h-8 group-hover:rotate-90 transition-transform duration-300" />
         </Button>
       </main>
-
     </div>
   );
 };

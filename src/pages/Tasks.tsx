@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import { Plus } from 'lucide-react';
+import { Plus, CheckCircle2, CircleDashed, ClipboardList } from 'lucide-react';
 import { AppHeader } from '@/components/AppHeader';
 import { TaskItem } from '@/components/TaskItem';
 import { Button } from '@/components/ui/button';
 import { mockTasks } from '@/data/mockData';
 import { Task } from '@/types';
+import { cn } from '@/lib/utils';
 
 const Tasks = () => {
   const [tasks, setTasks] = useState<Task[]>(mockTasks);
@@ -29,32 +30,53 @@ const Tasks = () => {
   const doneCount = tasks.filter(t => t.status === 'done').length;
 
   return (
-    <div className="min-h-screen bg-background pb-6">
-      <AppHeader title="Tasks" />
+    <div className="min-h-screen bg-background pb-20 relative animate-fade-in">
+      <AppHeader title="Hostel Hub" />
 
-      <main className="p-4 space-y-4 max-w-7xl mx-auto">
+      <main className="p-4 md:p-6 space-y-8 max-w-5xl mx-auto">
+        {/* Header Section */}
+        <div className="space-y-1">
+          <h2 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-3">
+            <ClipboardList className="w-8 h-8 text-primary" />
+            Tasks
+          </h2>
+          <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">Stay on top of your responsibilities</p>
+        </div>
+
         {/* Stats */}
-        <div className="flex gap-3">
-          <div className="flex-1 p-4 bg-warning/10 rounded-xl text-center">
-            <p className="text-2xl font-bold text-warning">{pendingCount}</p>
-            <p className="text-xs text-muted-foreground">Pending</p>
+        <div className="grid grid-cols-2 gap-4">
+          <div className="p-5 bg-white border border-border/50 rounded-2xl shadow-soft flex items-center gap-4 transition-all hover:shadow-soft-lg">
+            <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center">
+              <CircleDashed className="w-6 h-6 text-warning" />
+            </div>
+            <div>
+              <p className="text-2xl font-extrabold text-foreground">{pendingCount}</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Pending</p>
+            </div>
           </div>
-          <div className="flex-1 p-4 bg-success/10 rounded-xl text-center">
-            <p className="text-2xl font-bold text-success">{doneCount}</p>
-            <p className="text-xs text-muted-foreground">Completed</p>
+          <div className="p-5 bg-white border border-border/50 rounded-2xl shadow-soft flex items-center gap-4 transition-all hover:shadow-soft-lg">
+            <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
+              <CheckCircle2 className="w-6 h-6 text-success" />
+            </div>
+            <div>
+              <p className="text-2xl font-extrabold text-foreground">{doneCount}</p>
+              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Completed</p>
+            </div>
           </div>
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex gap-2">
+        <div className="flex p-1.5 bg-muted/30 backdrop-blur-sm rounded-2xl border border-border/50 shadow-sm w-full sm:w-max">
           {(['all', 'pending', 'done'] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
-              className={`flex-1 py-2 text-sm font-medium rounded-lg capitalize transition-colors ${filter === f
-                ? 'bg-primary text-primary-foreground'
-                : 'bg-muted text-muted-foreground'
-                }`}
+              className={cn(
+                "px-8 py-2.5 text-sm font-bold rounded-xl transition-all duration-300 capitalize min-w-[100px]",
+                filter === f
+                  ? "bg-primary text-white shadow-soft"
+                  : "text-muted-foreground hover:text-foreground hover:bg-white/50"
+              )}
             >
               {f}
             </button>
@@ -62,11 +84,12 @@ const Tasks = () => {
         </div>
 
         {/* Task List */}
-        <div className="space-y-3">
+        <div className="space-y-4 mb-20">
           {filteredTasks.length > 0 ? (
             filteredTasks.map((task, index) => (
               <div
                 key={task.id}
+                className="animate-slide-in"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
                 <TaskItem
@@ -76,21 +99,26 @@ const Tasks = () => {
               </div>
             ))
           ) : (
-            <div className="text-center py-12">
-              <p className="text-muted-foreground">No tasks found</p>
+            <div className="text-center py-20 bg-white/50 border border-dashed border-border rounded-3xl animate-fade-in flex flex-col items-center justify-center gap-3">
+              <div className="w-20 h-20 bg-muted/20 rounded-full flex items-center justify-center">
+                <ClipboardList className="w-10 h-10 text-muted-foreground/30" />
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-foreground">No tasks found</h3>
+                <p className="text-muted-foreground mt-1">Try switching filters or add a new task</p>
+              </div>
             </div>
           )}
         </div>
 
         {/* FAB */}
         <Button
-          className="fixed bottom-24 right-4 w-14 h-14 rounded-full shadow-lg"
+          className="fixed bottom-8 right-8 w-16 h-16 rounded-2xl shadow-soft-lg bg-primary hover:bg-primary/90 hover:scale-[1.1] active:scale-[0.9] transition-all z-50 group"
           size="icon"
         >
-          <Plus className="w-6 h-6" />
+          <Plus className="w-8 h-8 group-hover:rotate-90 transition-transform duration-300" />
         </Button>
       </main>
-
     </div>
   );
 };

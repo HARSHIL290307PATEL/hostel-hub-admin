@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Phone, Mail, Calendar, BookOpen, GraduationCap, Heart, Edit, UserMinus } from 'lucide-react';
+import { ArrowLeft, Phone, Mail, Calendar, BookOpen, GraduationCap, Heart, Edit, UserMinus, User, Hash, Briefcase, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getStudents } from '@/lib/store';
 import { Student } from '@/types';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const StudentDetails = () => {
   const { id } = useParams();
@@ -32,7 +33,10 @@ const StudentDetails = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Loading...</p>
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-primary/20 border-t-primary rounded-full animate-spin" />
+          <p className="text-muted-foreground font-bold uppercase tracking-widest text-xs">Loading Details...</p>
+        </div>
       </div>
     );
   }
@@ -40,15 +44,18 @@ const StudentDetails = () => {
   if (!student) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <p className="text-muted-foreground">Student not found</p>
+        <div className="text-center space-y-4">
+          <div className="w-20 h-20 bg-destructive/10 rounded-full flex items-center justify-center mx-auto text-destructive">
+            <UserMinus className="w-10 h-10" />
+          </div>
+          <h1 className="text-2xl font-bold">Student not found</h1>
+          <Button onClick={() => navigate('/dashboard')} variant="secondary">Go Back</Button>
+        </div>
       </div>
     );
   }
 
   const handleMoveToAlumni = async () => {
-    // Logic to move to alumni (update isAlumni = true)
-    // Assuming we have updateStudent
-    // This part was just a toast before.
     toast({
       title: 'Moved to Alumni',
       description: `${student.name} has been moved to alumni list.`,
@@ -56,93 +63,129 @@ const StudentDetails = () => {
     navigate('/dashboard');
   };
 
-  const infoItems = [
-    { label: 'Room No', value: student.roomNo, icon: null },
-    { label: 'Name', value: student.name, icon: null },
-    { label: 'Age', value: `${student.age} years`, icon: null },
-    { label: 'Date of Birth', value: student.dob, icon: Calendar },
-    { label: 'Mobile', value: student.mobile, icon: Phone },
-    { label: 'Email', value: student.email, icon: Mail },
-    { label: 'Degree', value: student.degree, icon: BookOpen },
-    { label: 'Year', value: student.year, icon: GraduationCap },
-    { label: 'Result', value: student.result, icon: null },
-    { label: 'Interest', value: student.interest, icon: Heart },
+  const infoGroups = [
+    {
+      title: "Personal Information",
+      items: [
+        { label: 'Full Name', value: student.name, icon: User },
+        { label: 'Date of Birth', value: student.dob, icon: Calendar },
+        { label: 'Age', value: `${student.age} Years`, icon: User },
+      ]
+    },
+    {
+      title: "Hostel Details",
+      items: [
+        { label: 'Room Number', value: student.roomNo, icon: Hash },
+      ]
+    },
+    {
+      title: "Contact Details",
+      items: [
+        { label: 'Mobile Number', value: student.mobile, icon: Phone },
+        { label: 'Email Address', value: student.email, icon: Mail },
+      ]
+    },
+    {
+      title: "Academic Information",
+      items: [
+        { label: 'Degree', value: student.degree, icon: BookOpen },
+        { label: 'Year', value: student.year, icon: GraduationCap },
+        { label: 'Result/CGPA', value: student.result, icon: Award },
+        { label: 'Interests', value: student.interest, icon: Heart },
+      ]
+    }
   ];
 
   return (
-    <div className="min-h-screen bg-background pb-6">
-      {/* Header */}
-      <header className="sticky top-0 z-40 bg-primary text-primary-foreground shadow-md">
-        <div className="flex items-center gap-3 h-14 px-4 max-w-7xl mx-auto">
+    <div className="min-h-screen bg-background pb-20 relative animate-fade-in">
+      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-border shadow-soft">
+        <div className="flex items-center gap-4 h-16 px-4 max-w-7xl mx-auto">
           <Button
             variant="ghost"
             size="icon"
-            className="text-primary-foreground hover:bg-primary-foreground/10"
+            className="text-muted-foreground hover:text-primary hover:bg-primary/5 transition-colors"
             onClick={() => navigate(-1)}
           >
-            <ArrowLeft className="w-5 h-5" />
+            <ArrowLeft className="w-6 h-6" />
           </Button>
-          <h1 className="text-lg font-semibold">Student Details</h1>
+          <h1 className="text-xl font-bold tracking-tight text-foreground">Student Profile</h1>
         </div>
       </header>
 
-      <main className="p-4 space-y-4 max-w-7xl mx-auto">
+      <main className="p-4 md:p-6 space-y-8 max-w-4xl mx-auto mt-4">
         {/* Profile Card */}
-        <div className="bg-card rounded-xl shadow-card p-6 text-center animate-scale-in">
-          <div className="w-20 h-20 mx-auto mb-4 rounded-full bg-primary/10 flex items-center justify-center">
-            <span className="text-3xl font-bold text-primary">
+        <div className="bg-white border border-border/50 rounded-3xl shadow-soft p-8 text-center animate-scale-in relative overflow-hidden">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-[100px] -z-1" />
+
+          <div className="w-28 h-28 mx-auto mb-6 rounded-2xl bg-primary flex items-center justify-center shadow-soft transform rotate-3">
+            <span className="text-5xl font-extrabold text-white -rotate-3">
               {student.name.charAt(0)}
             </span>
           </div>
-          <h2 className="text-xl font-bold text-foreground">{student.name}</h2>
-          <p className="text-sm text-muted-foreground">Room {student.roomNo}</p>
-          {student.isAlumni && (
-            <span className="inline-flex items-center gap-1 mt-2 px-3 py-1 bg-accent/10 text-accent text-sm font-medium rounded-full">
-              <GraduationCap className="w-4 h-4" />
-              Alumni
-            </span>
-          )}
+
+          <div className="space-y-1">
+            <h2 className="text-3xl font-extrabold text-foreground tracking-tight">{student.name}</h2>
+            <p className="text-primary font-bold uppercase tracking-[0.2em] text-xs">Room {student.roomNo}</p>
+          </div>
+
+          <div className="mt-8 flex justify-center gap-3">
+            {!student.isAlumni ? (
+              <>
+                <Button
+                  size="lg"
+                  className="rounded-2xl h-12 px-8 font-bold bg-primary hover:bg-primary/90 shadow-soft"
+                  onClick={() => navigate(`/students/${id}/edit`)}
+                >
+                  <Edit className="w-4 h-4 mr-2" />
+                  Edit Profile
+                </Button>
+                <Button
+                  size="lg"
+                  variant="secondary"
+                  className="rounded-2xl h-12 px-8 font-bold border border-border/50"
+                  onClick={handleMoveToAlumni}
+                >
+                  <UserMinus className="w-4 h-4 mr-2" />
+                  Move to Alumni
+                </Button>
+              </>
+            ) : (
+              <div className="inline-flex items-center gap-2 px-6 py-2.5 bg-accent/20 text-accent text-sm font-bold rounded-2xl border border-accent/10 uppercase tracking-widest">
+                <GraduationCap className="w-5 h-5" />
+                Alumni Member
+              </div>
+            )}
+          </div>
         </div>
 
-        {/* Info Card */}
-        <div className="bg-card rounded-xl shadow-card divide-y divide-border overflow-hidden">
-          {infoItems.map((item, index) => (
-            <div
-              key={item.label}
-              className="flex items-center gap-4 px-4 py-3 animate-fade-in"
-              style={{ animationDelay: `${index * 30}ms` }}
-            >
-              <div className="w-24 flex-shrink-0">
-                <span className="text-xs text-muted-foreground">{item.label}</span>
+        {/* Info Groups */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {infoGroups.map((group, groupIdx) => (
+            <div key={group.title} className="space-y-3 animate-slide-in" style={{ animationDelay: `${groupIdx * 50}ms` }}>
+              <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-widest ml-1">{group.title}</h3>
+              <div className="bg-white border border-border/50 rounded-2xl shadow-soft divide-y divide-border/30 overflow-hidden">
+                {group.items.map((item, idx) => {
+                  const Icon = item.icon;
+                  return (
+                    <div
+                      key={item.label}
+                      className="flex items-center gap-4 px-6 py-4 hover:bg-primary/[0.02] transition-colors"
+                    >
+                      <div className="w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center shrink-0">
+                        {Icon && <Icon className="w-5 h-5 text-muted-foreground" />}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-tight leading-none mb-1">{item.label}</p>
+                        <p className="text-base font-bold text-foreground truncate">{item.value || "N/A"}</p>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
-              <p className="text-sm font-medium text-foreground flex-1">{item.value}</p>
             </div>
           ))}
         </div>
-
-        {/* Actions */}
-        {!student.isAlumni && (
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              className="flex-1"
-              onClick={() => navigate(`/students/${id}/edit`)}
-            >
-              <Edit className="w-4 h-4 mr-2" />
-              Edit
-            </Button>
-            <Button
-              variant="secondary"
-              className="flex-1"
-              onClick={handleMoveToAlumni}
-            >
-              <UserMinus className="w-4 h-4 mr-2" />
-              Move to Alumni
-            </Button>
-          </div>
-        )}
       </main>
-
     </div>
   );
 };

@@ -6,37 +6,39 @@ interface StatCardProps {
   value: number | string;
   icon: LucideIcon;
   variant?: 'default' | 'accent' | 'success' | 'warning';
+  className?: string;
 }
 
 const variantStyles = {
-  default: 'bg-card text-card-foreground',
-  accent: 'bg-accent/10 text-accent',
-  success: 'bg-success/10 text-success',
-  warning: 'bg-warning/10 text-warning',
+  default: 'bg-white border border-border shadow-soft',
+  accent: 'bg-primary/5 border border-primary/10 shadow-soft',
+  success: 'bg-success/5 border border-success/10 shadow-soft',
+  warning: 'bg-warning/5 border border-warning/10 shadow-soft',
 };
 
 const iconStyles = {
   default: 'bg-primary/10 text-primary',
-  accent: 'bg-accent/20 text-accent',
+  accent: 'bg-primary/15 text-primary',
   success: 'bg-success/20 text-success',
   warning: 'bg-warning/20 text-warning',
 };
 
-export const StatCard = ({ title, value, icon: Icon, variant = 'default' }: StatCardProps) => {
+export const StatCard = ({ title, value, icon: Icon, variant = 'default', className }: StatCardProps) => {
   return (
     <div
       className={cn(
-        "p-4 rounded-xl shadow-card transition-all duration-200 hover:shadow-card-hover animate-fade-in",
-        variantStyles[variant]
+        "p-5 rounded-2xl transition-all duration-300 hover:scale-[1.02] hover:shadow-soft-lg animate-fade-in",
+        variantStyles[variant],
+        className
       )}
     >
-      <div className="flex items-center gap-3">
-        <div className={cn("p-2 rounded-lg", iconStyles[variant])}>
-          <Icon className="w-5 h-5" />
+      <div className="flex items-center gap-4">
+        <div className={cn("p-3 rounded-xl", iconStyles[variant])}>
+          <Icon className="w-6 h-6" />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-2xl font-bold">{value}</p>
-          <p className="text-xs text-muted-foreground truncate">{title}</p>
+          <p className="text-2xl font-bold tracking-tight text-foreground">{value}</p>
+          <p className="text-sm font-medium text-muted-foreground truncate uppercase tracking-wider">{title}</p>
         </div>
       </div>
     </div>

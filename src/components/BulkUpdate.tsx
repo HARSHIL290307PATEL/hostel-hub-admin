@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
-import * as XLSX from 'xlsx';
+import ExcelJS from 'exceljs';
+import { saveAs } from 'file-saver';
 import { Upload, Download, FileSpreadsheet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Student } from '@/types';
@@ -12,11 +13,29 @@ interface BulkUpdateProps {
 }
 
 export const BulkUpdate = ({ students, onUpdate }: BulkUpdateProps) => {
-    const handleDownload = () => {
-        const ws = XLSX.utils.json_to_sheet(students);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Students");
-        XLSX.writeFile(wb, "hostel_students_data.xlsx");
+    const handleDownload = async () => {
+        const workbook = new ExcelJS.Workbook();
+        const worksheet = workbook.addWorksheet('Students');
+
+        // Dynamically create columns from the first student object if available
+        if (students.length > 0) {
+            worksheet.columns = Object.keys(students[0]).map((key) => ({
+                header: key,
+                key: key,
+                width: 20, // Set a default width for better readability
+            }));
+        }
+
+        // Add rows
+        worksheet.addRows(students);
+
+        // Generate buffer
+        const buffer = await workbook.xlsx.writeBuffer();
+
+        // Create blob and save
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        saveAs(blob, 'hostel_students_data.xlsx');
+
         toast.success("Excel file downloaded successfully");
     };
 
@@ -30,13 +49,77 @@ export const BulkUpdate = ({ students, onUpdate }: BulkUpdateProps) => {
         }
 
         const reader = new FileReader();
-        reader.onload = (evt) => {
+        reader.onload = async (evt) => {
             try {
-                const bstr = evt.target?.result;
-                const wb = XLSX.read(bstr, { type: 'binary' });
-                const wsname = wb.SheetNames[0];
-                const ws = wb.Sheets[wsname];
-                const data = XLSX.utils.sheet_to_json(ws) as Student[];
+                const buffer = evt.target?.result as ArrayBuffer;
+                const workbook = new ExcelJS.Workbook();
+                await workbook.xlsx.load(buffer);
+
+                const worksheet = workbook.getWorksheet(1);
+
+                if (!worksheet) {
+                    toast.error("The uploaded file is empty or invalid");
+                    return;
+                }
+
+                // Convert worksheet to JSON manually
+                const data: any[] = [];
+                const headers: string[] = [];
+
+                worksheet.eachRow((row, rowNumber) => {
+                    if (rowNumber === 1) {
+                        // Capture headers
+                        row.eachCell((cell, colNumber) => {
+                            headers[colNumber] = String(cell.value);
+                        });
+                    } else {
+                        // Capture data
+                        const rowData: any = {};
+                        let hasData = false;
+                        // Helper to safely extract cell value
+                        const getCellValue = (cell: ExcelJS.Cell): any => {
+                            const value = cell.value;
+
+                            if (value && typeof value === 'object') {
+                                // Handle formula cells
+                                if ('formula' in value) {
+                                    // If result is available, use it (check for undefined to strictly verify existence)
+                                    if ((value as any).result !== undefined) {
+                                        return (value as any).result;
+                                    }
+                                    // Fallback for simple boolean formulas (common in some Excel exports)
+                                    const formula = (value as any).formula;
+                                    if (formula === 'FALSE()') return false;
+                                    if (formula === 'TRUE()') return true;
+
+                                    // If we can't resolve the value, return null to avoid sending an object to the DB
+                                    return null;
+                                }
+                                // Handle hyperlink cells
+                                if ('text' in value) {
+                                    return (value as any).text;
+                                }
+                                // Handle rich text cells
+                                if ('richText' in value && Array.isArray((value as any).richText)) {
+                                    return (value as any).richText.map((rt: any) => rt.text).join('');
+                                }
+                            }
+
+                            return value;
+                        };
+
+                        row.eachCell((cell, colNumber) => {
+                            const header = headers[colNumber];
+                            if (header) {
+                                rowData[header] = getCellValue(cell);
+                                hasData = true;
+                            }
+                        });
+                        if (hasData) {
+                            data.push(rowData);
+                        }
+                    }
+                });
 
                 if (data.length === 0) {
                     toast.error("The uploaded file is empty");
@@ -49,14 +132,14 @@ export const BulkUpdate = ({ students, onUpdate }: BulkUpdateProps) => {
                     return;
                 }
 
-                onUpdate(data);
+                onUpdate(data as Student[]);
                 toast.success(`Successfully loaded ${data.length} students records`);
             } catch (error) {
                 console.error("Excel processing error:", error);
                 toast.error("Failed to process Excel file");
             }
         };
-        reader.readAsBinaryString(file);
+        reader.readAsArrayBuffer(file);
         // Reset input value to allow uploading same file again
         e.target.value = '';
     }, [onUpdate]);

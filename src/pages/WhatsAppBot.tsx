@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import QRCode from 'react-qr-code';
 import { AppHeader } from '@/components/AppHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -182,13 +183,16 @@ const WhatsAppBot = () => {
                                 )}
 
                                 {status.state === 'disconnected' && status.qr && (
-                                    <div className="p-4 bg-white rounded-xl shadow-inner mt-4">
-                                        <img
-                                            src={`https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(status.qr)}`}
-                                            alt="QR Code"
-                                            className="w-48 h-48 object-contain"
-                                        />
-                                        <p className="text-xs text-muted-foreground mt-2 font-medium uppercase tracking-widest">Scan to Connect</p>
+                                    <div className="p-4 bg-white rounded-xl shadow-inner mt-4 flex flex-col items-center">
+                                        <div className="w-48 h-48 bg-white">
+                                            <QRCode
+                                                value={status.qr}
+                                                size={256}
+                                                style={{ height: "100%", maxWidth: "100%", width: "100%" }}
+                                                viewBox={`0 0 256 256`}
+                                            />
+                                        </div>
+                                        <p className="text-xs text-muted-foreground mt-4 font-medium uppercase tracking-widest">Scan to Connect</p>
                                     </div>
                                 )}
                             </div>

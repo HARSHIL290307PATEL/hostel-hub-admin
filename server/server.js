@@ -12,7 +12,12 @@ app.use(express.json());
 import { initClient } from './client.js';
 initClient();
 
-// Initialize Routes
+// Health check endpoint for uptime monitors
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
+
+// Parse JSON bodies (as sent by API clients)
 initRoutes(app);
 
 app.listen(PORT, () => {

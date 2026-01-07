@@ -5,7 +5,7 @@ import { AppHeader } from '@/components/AppHeader';
 import { Button } from '@/components/ui/button';
 import { getStudents } from '@/lib/store';
 import { Student } from '@/types';
-import axios from 'axios';
+import api from '@/lib/api';
 import { toast } from 'sonner';
 
 const Birthdays = () => {
@@ -93,7 +93,7 @@ const Birthdays = () => {
                                                 const message = `Happy Birthday, ${student.name}! 🎉🎂 Wishing you a fantastic day filled with joy and happiness!`;
                                                 toast.info(`Sending wish to ${student.name}...`);
 
-                                                await axios.post('/api/whatsapp/send', {
+                                                await api.post('/api/whatsapp/send', {
                                                     to: student.mobile,
                                                     message: message
                                                 });

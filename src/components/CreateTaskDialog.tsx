@@ -10,7 +10,7 @@ import { Student } from '@/types';
 import { Search, User2, Calendar, ClipboardList, HelpCircle, Send, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
-import axios from 'axios';
+import api from '@/lib/api';
 
 interface CreateTaskDialogProps {
     open: boolean;
@@ -76,7 +76,7 @@ export const CreateTaskDialog = ({ open, onOpenChange, onTaskCreate }: CreateTas
 
             try {
                 // Try sending via backend bot first
-                await axios.post('/api/whatsapp/send', {
+                await api.post('/api/whatsapp/send', {
                     to: selectedStudent.mobile,
                     message: message
                 });

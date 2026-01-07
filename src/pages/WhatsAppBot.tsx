@@ -7,7 +7,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Wifi, WifiOff, Loader, RefreshCw, Send, MessageSquare, Smartphone, Search, User, CheckCircle, Phone, Gift } from 'lucide-react';
-import axios from 'axios';
+import api from '@/lib/api';
 import { toast } from 'sonner';
 import { getStudents } from '@/lib/store';
 import { Student } from '@/types';
@@ -29,7 +29,7 @@ const WhatsAppBot = () => {
     const fetchStatus = async () => {
         try {
             // NOTE: Backend endpoints are currently removed, this might fail until restored.
-            const response = await axios.get('/api/whatsapp/connect');
+            const response = await api.get('/api/whatsapp/connect');
             const data = response.data;
 
             if (data.status === 'connected') {
@@ -98,7 +98,7 @@ const WhatsAppBot = () => {
             for (const student of selectedStudents) {
                 if (!student.mobile) continue;
                 try {
-                    await axios.post('/api/whatsapp/send', {
+                    await api.post('/api/whatsapp/send', {
                         to: student.mobile,
                         message: msgForm.message
                     });
@@ -169,7 +169,7 @@ const WhatsAppBot = () => {
                                         className="mt-4 rounded-xl font-bold"
                                         onClick={async () => {
                                             try {
-                                                await axios.post('/api/whatsapp/disconnect');
+                                                await api.post('/api/whatsapp/disconnect');
                                                 toast.success('Disconnected successfully');
                                                 fetchStatus(); // Refresh status immediately
                                             } catch (error) {
@@ -257,7 +257,7 @@ const WhatsAppBot = () => {
                                                             // Optimistic UI updates could go here
                                                             toast.message(`Sending wish to ${student.name}...`);
 
-                                                            await axios.post('/api/whatsapp/send', {
+                                                            await api.post('/api/whatsapp/send', {
                                                                 to: student.mobile,
                                                                 message: message
                                                             });

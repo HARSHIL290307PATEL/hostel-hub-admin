@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 // const API_BASE = "https://whatsapp-api.onrender.com";
 const API_BASE = "http://localhost:4000"; // Keep local for debugging per user flow
+// Single Client Mode Active
 
 export default function Whatsapp() {
     const [connected, setConnected] = useState(false);

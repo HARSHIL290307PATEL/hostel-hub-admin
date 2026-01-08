@@ -7,7 +7,7 @@ const api = axios.create({
     // Otherwise:
     // - In Development: Use '' to allow Vite proxy to handle /api requests to localhost:3000
     // - In Production: Use the hardcoded Render URL as a fallback, BUT check if we are in a preview/local environment first via relative path
-    baseURL: import.meta.env.VITE_API_URL || '',
+    baseURL: "http://localhost:4000",
     headers: {
         'Content-Type': 'application/json',
     },

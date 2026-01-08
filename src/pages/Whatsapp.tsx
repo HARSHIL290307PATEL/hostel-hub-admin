@@ -3,9 +3,9 @@ import { Loader2, CheckCircle2, AlertCircle, Send } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
-// const API_BASE = "https://whatsapp-api.onrender.com";
-const API_BASE = "http://localhost:4000"; // Keep local for debugging per user flow
-// Single Client Mode Active
+import { API_BASE_URL } from "@/lib/api";
+
+const API_BASE = API_BASE_URL;
 
 export default function Whatsapp() {
     const [connected, setConnected] = useState(false);

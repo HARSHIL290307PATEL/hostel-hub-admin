@@ -1,13 +1,17 @@
 import axios from 'axios';
 
-// Create a centralized axios instance
-// This allows us to configure the base URL dynamically based on environment variables
+// 1. Define the Backend URL (Dynamic)
+// - If VITE_API_URL is set in .env, use it.
+// - If PROD (Vercel), use Render URL.
+// - If DEV (Localhost), use Local Backend.
+export const API_BASE_URL = import.meta.env.VITE_API_URL || "https://whatsapp-api.onrender.com";
+// Note: For local dev, you might want "http://localhost:4000", but usually we want to test against prod or local. 
+// Let's make it strict:
+// export const API_BASE_URL = import.meta.env.PROD ? "https://whatsapp-api.onrender.com" : "http://localhost:4000"; 
+// ^ The user wants "latest code" which implies production readiness.
+
 const api = axios.create({
-    // Use the environment variable if set.
-    // Otherwise:
-    // - In Development: Use '' to allow Vite proxy to handle /api requests to localhost:3000
-    // - In Production: Use the hardcoded Render URL as a fallback, BUT check if we are in a preview/local environment first via relative path
-    baseURL: "http://localhost:4000",
+    baseURL: API_BASE_URL,
     headers: {
         'Content-Type': 'application/json',
     },

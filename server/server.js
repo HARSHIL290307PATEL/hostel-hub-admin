@@ -45,3 +45,22 @@ setInterval(async () => {
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
+process.on('SIGINT', async () => {
+    console.log('SIGINT received. Shutting down...');
+    process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
+    console.log('SIGTERM received. Shutting down...');
+    process.exit(0);
+});
+
+process.on('uncaughtException', (err) => {
+    console.error('UNCAUGHT EXCEPTION:', err);
+    // Keep alive if possible, but logging is crucial
+});
+
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('UNHANDLED REJECTION:', reason);
+});

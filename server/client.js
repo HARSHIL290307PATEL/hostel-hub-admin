@@ -20,9 +20,7 @@ export const initClient = () => {
                 '--disable-dev-shm-usage',
                 '--disable-accelerated-2d-canvas',
                 '--no-first-run',
-                '--disable-gpu',
-                '--single-process', // Critical for low-memory containers
-                '--no-zygote'      // Critical for low-memory containers
+                '--disable-gpu'
             ],
         }
     });

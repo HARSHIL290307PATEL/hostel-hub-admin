@@ -1,40 +1,38 @@
 import { useEffect, useState } from "react";
 
-const API = "https://whatsapp-api.onrender.com";
+const API_BASE = "https://whatsapp-api.onrender.com";
 
 export default function App() {
-  const [userId, setUserId] = useState("");
+  const [userId, setUserId] = useState("harshil");
   const [qr, setQr] = useState(null);
   const [status, setStatus] = useState("");
   const [number, setNumber] = useState("");
   const [message, setMessage] = useState("");
 
   const startSession = async () => {
-    await fetch(`${API}/api/session/start`, {
+    await fetch(`${API_BASE}/api/session/start`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId })
+      body: JSON.stringify({ userId: "harshil" })
     });
   };
 
   useEffect(() => {
-    if (!userId) return;
-
     const interval = setInterval(async () => {
-      const res = await fetch(`${API}/api/qr/${userId}`);
+      const res = await fetch(`${API_BASE}/api/qr/harshil`);
       const data = await res.json();
       setStatus(data.status);
       if (data.qr) setQr(data.qr);
     }, 3000);
 
     return () => clearInterval(interval);
-  }, [userId]);
+  }, []);
 
   const sendMessage = async () => {
-    await fetch(`${API}/api/send`, {
+    await fetch(`${API_BASE}/api/send`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ userId, number, message })
+      body: JSON.stringify({ userId: "harshil", number, message })
     });
     alert("Message sent!");
   };

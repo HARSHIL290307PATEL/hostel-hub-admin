@@ -26,6 +26,7 @@ export const AppHeader = ({ title }: AppHeaderProps) => {
     { path: '/update', label: 'Update', icon: RefreshCw },
     { path: '/tasks', label: 'Tasks', icon: CheckSquare },
     { path: '/categories', label: 'Categories', icon: FolderOpen },
+    { path: '/whatsapp', label: 'WhatsApp', icon: MessageCircle },
   ];
 
   const filteredMenuItems = menuItems.filter(item => item.path !== location.pathname);

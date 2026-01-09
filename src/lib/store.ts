@@ -25,6 +25,7 @@ export interface EducationResource {
 
 // --- Helpers ---
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const fromDbStudent = (db: any): Student => ({
     id: db.id,
     roomNo: db.room_no,
@@ -39,17 +40,21 @@ const fromDbStudent = (db: any): Student => ({
     interest: db.interest,
     isAlumni: db.is_alumni,
     createdAt: db.created_at,
+    profileImage: db.profile_image,
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const toDbStudent = (student: Partial<Student>) => {
     const db: any = { ...student };
     if (student.roomNo !== undefined) db.room_no = student.roomNo;
     if (student.isAlumni !== undefined) db.is_alumni = student.isAlumni;
     if (student.createdAt !== undefined) db.created_at = student.createdAt;
+    if (student.profileImage !== undefined) db.profile_image = student.profileImage;
 
     delete db.roomNo;
     delete db.isAlumni;
     delete db.createdAt;
+    delete db.profileImage;
 
     // Remove empty ID to allow auto-generation
     if (!db.id || db.id === '') {
@@ -59,6 +64,7 @@ const toDbStudent = (student: Partial<Student>) => {
     return db;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const fromDbTask = (db: any): Task => ({
     id: db.id,
     title: db.title,
@@ -73,6 +79,7 @@ const fromDbTask = (db: any): Task => ({
 });
 
 const toDbTask = (task: Partial<Task>) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const db: any = { ...task };
     if (task.dueDate !== undefined) db.due_date = task.dueDate;
     if (task.assignedTo !== undefined) db.assigned_to = task.assignedTo;
@@ -88,6 +95,7 @@ const toDbTask = (task: Partial<Task>) => {
     return db;
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const fromDbCategory = (db: any): Karyakarta => ({
     id: db.id,
     name: db.name,
@@ -97,6 +105,7 @@ const fromDbCategory = (db: any): Karyakarta => ({
 });
 
 const toDbCategory = (cat: Partial<Karyakarta>) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const db: any = { ...cat };
     if (cat.parentId !== undefined) db.parent_id = cat.parentId;
     if (cat.studentIds !== undefined) db.student_ids = cat.studentIds;
@@ -337,4 +346,26 @@ export const deleteEducationResource = async (id: string) => {
         console.error('Error deleting resource:', error);
         throw error;
     }
+};
+
+// Settings
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const getSetting = async (key: string) => {
+    const { data, error } = await supabase
+        .from('settings')
+        .select('value')
+        .eq('key', key)
+        .single();
+
+    if (error) return null;
+    return data?.value;
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const updateSetting = async (key: string, value: any) => {
+    const { error } = await supabase
+        .from('settings')
+        .upsert({ key, value });
+
+    if (error) throw error;
 };

@@ -47,9 +47,10 @@ export default function Education() {
                 getStudents(),
                 getCategories()
             ]);
-            setResources(resData);
-            setStudents(studData);
-            setKaryakartas(catData);
+
+            setResources(resData || []);
+            setStudents(studData || []);
+            setKaryakartas(catData || []);
         } catch (error) {
             toast.error("Failed to load data");
         } finally {
@@ -147,9 +148,9 @@ export default function Education() {
                 console.log(`Sending to ${student.name} (${student.mobile})`);
                 await api.post('/api/send', { number: student.mobile, message });
                 successCount++;
-            } catch (e: any) {
+            } catch (e: unknown) {
                 console.error(`Failed to send to ${student.name}:`, e);
-                const errMsg = e.response?.data?.message || e.message;
+                const errMsg = e instanceof Error ? e.message : 'Failed to send message';
                 toast.error(`Failed to send to ${student.name}: ${errMsg}`);
             }
         }
@@ -184,7 +185,7 @@ export default function Education() {
                                 </DialogHeader>
                                 <div className="space-y-4 py-4">
                                     <Input placeholder="Title" value={newTitle} onChange={e => setNewTitle(e.target.value)} />
-                                    <Select value={newType} onValueChange={(v: any) => setNewType(v)}>
+                                    <Select value={newType} onValueChange={(v: string) => setNewType(v as 'video' | 'link')}>
                                         <SelectTrigger><SelectValue /></SelectTrigger>
                                         <SelectContent>
                                             <SelectItem value="link">Link</SelectItem>

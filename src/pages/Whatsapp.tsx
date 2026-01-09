@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Loader2, CheckCircle2, Send, Search, Users, X, Filter, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 import { API_BASE_URL } from "@/lib/api";
+import api from "@/lib/api";
 import { AppHeader } from "@/components/AppHeader";
 import { getStudents, getCategories, Karyakarta } from "@/lib/store";
 import { Student } from "@/types";
@@ -160,12 +161,11 @@ export default function Whatsapp() {
             }
 
             try {
-                const res = await fetch(`${API_BASE}/api/send`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ number: student.mobile, message })
+                const res = await api.post('/api/send', {
+                    number: student.mobile,
+                    message
                 });
-                const data = await res.json();
+                const data = res.data;
                 if (data.success) successCount++;
                 else failCount++;
             } catch (e) {

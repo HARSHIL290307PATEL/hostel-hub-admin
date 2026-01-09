@@ -75,5 +75,29 @@ CREATE TABLE IF NOT EXISTS education_resources (
 );
 
 ALTER TABLE education_resources ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Enable read/write for all" ON education_resources;
 CREATE POLICY "Enable read/write for all" ON education_resources FOR ALL USING (true) WITH CHECK (true);
+
+
+-- 7. Create Settings Table for App Configuration
+CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE settings ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Enable read/write for all" ON settings;
+CREATE POLICY "Enable read/write for all" ON settings FOR ALL USING (true) WITH CHECK (true);
+
+-- Insert default birthday template if not exists
+INSERT INTO settings (key, value) VALUES ('birthday_template', 'Happy Birthday, {name}! 🎉🎂 Wishing you a fantastic day filled with joy and happiness!') ON CONFLICT DO NOTHING;
+
+-- Add profile_image column to students table if it doesn't exist
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'students' AND column_name = 'profile_image') THEN
+        ALTER TABLE students ADD COLUMN profile_image TEXT;
+    END IF;
+END $$;
 

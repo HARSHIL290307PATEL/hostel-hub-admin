@@ -56,6 +56,26 @@ BEGIN
     END IF;
 END $$;
 
+-- 4b. Fix for missing columns in tasks table
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='tasks' AND column_name='assigned_to') THEN
+        ALTER TABLE tasks ADD COLUMN assigned_to TEXT;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='tasks' AND column_name='assigned_to_name') THEN
+        ALTER TABLE tasks ADD COLUMN assigned_to_name TEXT;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='tasks' AND column_name='is_practice_question') THEN
+        ALTER TABLE tasks ADD COLUMN is_practice_question BOOLEAN DEFAULT FALSE;
+    END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='tasks' AND column_name='question_content') THEN
+        ALTER TABLE tasks ADD COLUMN question_content TEXT;
+    END IF;
+END $$;
+
 -- 5. Fix for Check Constraint "categories_type_check"
 -- The existing constraint might be rejecting 'main'/'sub'. We will drop it and re-add a compatible one.
 ALTER TABLE categories DROP CONSTRAINT IF EXISTS categories_type_check;

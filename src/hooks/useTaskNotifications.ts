@@ -28,7 +28,12 @@ export const useTaskNotifications = (tasks: Task[]) => {
         // We already checked this session? Maybe we should check anyway if tasks changed?
         // Let's check "due today" specifically.
 
-        const today = new Date().toISOString().split('T')[0];
+        // Use local date (YYYY-MM-DD) to match the Input type='date' value
+        const date = new Date();
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const today = `${year}-${month}-${day}`;
 
         tasks.forEach(task => {
             if (task.status === 'pending' && task.dueDate === today) {
@@ -58,7 +63,8 @@ export const useTaskNotifications = (tasks: Task[]) => {
 
         // Optional: Set up an interval to check crossing into "tomorrow" or "due time" if the app stays open.
         const interval = setInterval(() => {
-            const currentToday = new Date().toISOString().split('T')[0];
+            const d = new Date();
+            const currentToday = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
             tasks.forEach(task => {
                 if (task.status === 'pending' && task.dueDate === currentToday) {
                     new Notification(`Task Deadline: ${task.title}`, {

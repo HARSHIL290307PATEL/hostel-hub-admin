@@ -57,7 +57,6 @@ export const CreateTaskDialog = ({ open, onOpenChange, onTaskCreate }: CreateTas
         }
 
         const newTask = {
-            id: Date.now().toString(),
             title: taskData.title,
             dueDate: taskData.dueDate,
             status: 'pending',

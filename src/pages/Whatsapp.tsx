@@ -161,9 +161,15 @@ export default function Whatsapp() {
             }
 
             try {
+                const personalizedMessage = message
+                    .replace(/{name}/g, student.name || "")
+                    .replace(/{room}/g, student.roomNo || "")
+                    .replace(/{mobile}/g, student.mobile || "")
+                    .replace(/{dob}/g, student.dob || "");
+
                 const res = await api.post('/api/send', {
                     number: student.mobile,
-                    message
+                    message: personalizedMessage
                 });
                 const data = res.data;
                 if (data.success) successCount++;
@@ -329,6 +335,25 @@ export default function Whatsapp() {
                     {/* Compose Message */}
                     <div className="p-6 glass-card rounded-3xl shadow-soft border-white/40 flex flex-col gap-4">
                         <h3 className="font-bold text-lg">Compose Message</h3>
+
+                        <div className="flex gap-2 flex-wrap">
+                            {[
+                                { label: "Name", value: "{name}" },
+                                { label: "Room", value: "{room}" },
+                                { label: "Mobile", value: "{mobile}" },
+                                { label: "DOB", value: "{dob}" },
+                            ].map((tag) => (
+                                <Button
+                                    key={tag.value}
+                                    variant="outline"
+                                    size="sm"
+                                    className="h-7 text-xs font-mono bg-muted/50 border-primary/20 hover:bg-primary/10 hover:text-primary transition-colors"
+                                    onClick={() => setMessage((prev) => prev + tag.value)}
+                                >
+                                    {tag.value}
+                                </Button>
+                            ))}
+                        </div>
 
                         <div className="relative">
                             <textarea

@@ -12,6 +12,7 @@ import StudentDetails from "./pages/StudentDetails";
 import AddStudent from "./pages/AddStudent";
 import Update from "./pages/Update";
 import Categories from "./pages/Categories";
+import Education from "./pages/Education";
 import Tasks from "./pages/Tasks";
 import NotFound from "./pages/NotFound";
 import Whatsapp from "./pages/Whatsapp";
@@ -38,6 +39,7 @@ const AppRoutes = () => {
       <Route path="/students/:id/edit" element={<ProtectedRoute><AddStudent /></ProtectedRoute>} />
       <Route path="/update" element={<ProtectedRoute><Update /></ProtectedRoute>} />
       <Route path="/categories" element={<ProtectedRoute><Categories /></ProtectedRoute>} />
+      <Route path="/education" element={<ProtectedRoute><Education /></ProtectedRoute>} />
 
       <Route path="/whatsapp" element={<ProtectedRoute><Whatsapp /></ProtectedRoute>} />
 

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Phone, Mail, Calendar, BookOpen, GraduationCap, Heart, Edit, UserMinus, User, Hash, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Student } from '@/types';
+import { updateStudent } from '@/lib/store';
 import { useToast } from '@/hooks/use-toast';
 
 interface StudentProfileProps {
@@ -15,11 +16,21 @@ export const StudentProfile = ({ student, onClose }: StudentProfileProps) => {
     const { toast } = useToast();
 
     const handleMoveToAlumni = async () => {
-        toast({
-            title: 'Moved to Alumni',
-            description: `${student.name} has been moved to alumni list.`,
-        });
-        if (onClose) onClose();
+        try {
+            await updateStudent(student.id, { isAlumni: true });
+            toast({
+                title: 'Moved to Alumni',
+                description: `${student.name} has been moved to alumni list.`,
+            });
+            if (onClose) onClose();
+            else navigate(-1); // Go back if no onClose (e.g., full page)
+        } catch (error) {
+            toast({
+                title: 'Error',
+                description: 'Failed to move student to alumni.',
+                variant: 'destructive',
+            });
+        }
     };
 
     const infoGroups = [

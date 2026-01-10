@@ -153,9 +153,7 @@ export const BulkUpdate = ({ students, onUpdate }: BulkUpdateProps) => {
                     </div>
                     <div className="space-y-1">
                         <h3 className="font-extrabold text-xl sm:text-2xl text-foreground tracking-tight">Excel Integration</h3>
-                        <p className="text-muted-foreground font-medium text-xs sm:text-sm leading-relaxed">
-                            Manage your entire database efficiently using standard Excel templates. Download, edit, and re-upload with ease.
-                        </p>
+
                     </div>
                 </div>
 

@@ -23,6 +23,7 @@ export const useTaskNotifications = (tasks: Task[]) => {
         // However, tasks might load async (if we had backend), here they are local state.
 
         if (tasks.length === 0) return;
+        if (!("Notification" in window)) return;
         if (Notification.permission !== "granted") return;
 
         // We already checked this session? Maybe we should check anyway if tasks changed?

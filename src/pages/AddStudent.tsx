@@ -20,10 +20,21 @@ import { uploadToImgBB } from '@/lib/imgbb';
 import { cn } from '@/lib/utils';
 
 // Hook for blocking navigation
-function useUnsavedChanges(when: boolean) {
-  useBlocker(() => {
-    return !window.confirm("Changes save nathi thaya. Bahar javu che?");
-  }, { when } as any);
+function useUnsavedChanges(isDirty: boolean) {
+  const blocker = useBlocker(
+    ({ currentLocation, nextLocation }) => isDirty && currentLocation.pathname !== nextLocation.pathname
+  );
+
+  useEffect(() => {
+    if (blocker.state === "blocked") {
+      const confirm = window.confirm("Changes save nathi thaya. Bahar javu che?");
+      if (confirm) {
+        blocker.proceed();
+      } else {
+        blocker.reset();
+      }
+    }
+  }, [blocker]);
 }
 
 const AddStudent = () => {

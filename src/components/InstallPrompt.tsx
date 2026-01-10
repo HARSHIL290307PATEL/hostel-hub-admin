@@ -9,15 +9,12 @@ export const InstallPrompt = () => {
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => {
-        // Check if user has already dismissed or installed
-        const hasDismissed = localStorage.getItem('pwa_prompt_dismissed');
-
         // Check if already in standalone mode (installed)
         const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
             (window.navigator as any).standalone ||
             document.referrer.includes('android-app://');
 
-        if (hasDismissed || isStandalone) return;
+        if (isStandalone) return;
 
         const handler = (e: Event) => {
             // Prevent the mini-infobar from appearing on mobile
@@ -48,15 +45,10 @@ export const InstallPrompt = () => {
             toast.success("Thank you for installing!");
             setDeferredPrompt(null);
             setIsOpen(false);
-        } else {
-            // User dismissed the native prompt
-            // We can decide if we want to show it again next time or respect this as a dismissal
         }
     };
 
     const handleDismiss = () => {
-        // Save to local storage so we don't annoy the user
-        localStorage.setItem('pwa_prompt_dismissed', 'true');
         setIsOpen(false);
     };
 
@@ -76,16 +68,20 @@ export const InstallPrompt = () => {
                         <X className="w-4 h-4" />
                     </Button>
 
-                    <div className="w-20 h-20 rounded-2xl bg-gradient-to-br from-primary to-violet-600 shadow-xl flex items-center justify-center mb-6 animate-in zoom-in-50 duration-500">
-                        <Smartphone className="w-10 h-10 text-white" />
+                    <div className="w-24 h-24 rounded-2xl shadow-xl flex items-center justify-center mb-6 animate-in zoom-in-50 duration-500 overflow-hidden">
+                        <img
+                            src="/pwa-192x192.png"
+                            alt="App Icon"
+                            className="w-full h-full object-cover"
+                        />
                     </div>
 
                     <DialogHeader className="space-y-2 mb-2">
                         <DialogTitle className="text-2xl font-extrabold text-foreground">
-                            Install App
+                            Install Pavitra House
                         </DialogTitle>
                         <DialogDescription className="text-base text-muted-foreground max-w-[280px] mx-auto">
-                            Add Hostel Hub to your home screen for quick access and a better experience.
+                            Add to your home screen for quick access and a better experience.
                         </DialogDescription>
                     </DialogHeader>
 

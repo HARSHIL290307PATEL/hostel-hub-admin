@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { UserMinus } from 'lucide-react';
+import { UserMinus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { getStudents } from '@/lib/store';
 import { Student } from '@/types';
@@ -31,22 +31,7 @@ const StudentDetails = () => {
     fetchStudent();
   }, [id]);
 
-  const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchStart(e.targetTouches[0].clientX);
-  };
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStart === null) return;
-    const touchEnd = e.changedTouches[0].clientX;
-    const distance = touchEnd - touchStart;
-    const isSwipeRight = distance > 100;
-
-    // Only trigger if started from left edge area (e.g., first 50px)
-    if (isSwipeRight && touchStart < 50) {
-      navigate(-1);
-    }
-    setTouchStart(null);
-  };
 
   if (loading) {
     return (
@@ -75,11 +60,17 @@ const StudentDetails = () => {
   return (
     <div
       className="min-h-screen bg-background pb-20 relative animate-fade-in"
-      onTouchStart={handleTouchStart}
-      onTouchEnd={handleTouchEnd}
     >
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-border shadow-soft">
         <div className="flex items-center gap-4 h-16 px-4 max-w-7xl mx-auto">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/students')}
+            className="text-muted-foreground hover:text-primary -ml-2"
+          >
+            <ArrowLeft className="w-6 h-6" />
+          </Button>
           <h1 className="text-xl font-bold tracking-tight text-foreground">Student Profile</h1>
         </div>
       </header>

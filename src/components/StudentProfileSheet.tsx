@@ -58,7 +58,7 @@ export const StudentProfileSheet = ({
                 </SheetHeader>
 
                 <div className="p-6 pt-10">
-                    <StudentProfile student={student} onClose={onClose} onUpdate={onUpdate} hideEditAction={true} />
+                    <StudentProfile student={student} onClose={onClose} onUpdate={onUpdate} hideEditAction={false} />
                 </div>
             </SheetContent>
         </Sheet>

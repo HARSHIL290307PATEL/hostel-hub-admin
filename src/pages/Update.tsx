@@ -120,13 +120,6 @@ const Update = () => {
                     <div className="absolute top-1/2 right-4 -translate-y-1/2 flex gap-2 transition-all duration-300">
                       <Button
                         size="sm"
-                        className="h-10 w-10 p-0 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 shadow-soft"
-                        onClick={(e) => handleUpdate(student.id, e)}
-                      >
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button
-                        size="sm"
                         variant="destructive"
                         className="h-10 w-10 p-0 rounded-xl font-bold shadow-soft"
                         onClick={(e) => handleDelete(student.id, e)}

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useBlocker } from 'react-router-dom';
 import { ArrowLeft, UserPlus, Save, Calendar as CalendarIcon, X, User, Loader2 } from 'lucide-react';
 import { format } from "date-fns";
 import { Button } from '@/components/ui/button';
@@ -19,11 +19,18 @@ import { BulkUpdate } from '@/components/BulkUpdate';
 import { uploadToImgBB } from '@/lib/imgbb';
 import { cn } from '@/lib/utils';
 
+// Hook for blocking navigation
+function useUnsavedChanges(when: boolean) {
+  useBlocker(() => {
+    return !window.confirm("Changes save nathi thaya. Bahar javu che?");
+  }, { when } as any);
+}
+
 const AddStudent = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const { toast } = useToast();
-  const isEditing = !!id; // Changed from isEditing to isEditing
+  const isEditing = !!id;
 
   const [formData, setFormData] = useState({
     roomNo: '',
@@ -36,13 +43,35 @@ const AddStudent = () => {
     year: '',
     result: '',
     interest: '',
-    profileImage: '', // Added profileImage field
+    profileImage: '',
   });
-  const [loading, setLoading] = useState(false); // Added loading state
+
+  const [loading, setLoading] = useState(false);
+  const [isDirty, setIsDirty] = useState(false);
+
+  // 1. Recover History (Prevent random back swipes)
+  useEffect(() => {
+    window.history.replaceState(null, "", window.location.pathname);
+  }, []);
+
+  // 2. Browser Level Warning (Refresh/Close Tab)
+  useEffect(() => {
+    const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+      if (isDirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    };
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
+  // 3. App Level Warning (React Router)
+  useUnsavedChanges(isDirty);
 
   useEffect(() => {
     const fetchStudent = async () => {
-      if (isEditing && id) { // Changed from isEditing to isEditing
+      if (isEditing && id) {
         try {
           const students = await getStudents();
           const student = students.find(s => s.id === id);
@@ -58,10 +87,11 @@ const AddStudent = () => {
               year: student.year || '',
               result: student.result || '',
               interest: student.interest || '',
-              profileImage: student.profileImage || '', // Changed to profileImage
+              profileImage: student.profileImage || '',
             });
+            // Reset dirty after loading initial data
+            setIsDirty(false);
           } else {
-            // Handle not found
             toast({ title: "Error", description: "Student not found", variant: "destructive" });
             navigate('/dashboard');
           }
@@ -71,9 +101,10 @@ const AddStudent = () => {
       }
     };
     fetchStudent();
-  }, [id, isEditing, navigate, toast]); // Changed from isEditing to isEditing
+  }, [id, isEditing, navigate, toast]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsDirty(true);
     setFormData(prev => ({
       ...prev,
       [e.target.name]: e.target.value,
@@ -107,6 +138,7 @@ const AddStudent = () => {
     try {
       setUploadingImage(true);
       const url = await uploadToImgBB(file);
+      setIsDirty(true);
       setFormData(prev => ({ ...prev, profileImage: url }));
       toast({
         title: "Upload Successful",
@@ -124,6 +156,7 @@ const AddStudent = () => {
   };
 
   const removeImage = () => {
+    setIsDirty(true);
     setFormData(prev => ({ ...prev, profileImage: '' }));
   };
 
@@ -146,7 +179,7 @@ const AddStudent = () => {
         return;
       }
 
-      if (isEditing && id) { // Changed from isEditing to isEditing
+      if (isEditing && id) {
         await updateStudent(id, {
           ...formData,
           age: Number(formData.age),
@@ -155,7 +188,8 @@ const AddStudent = () => {
           title: 'Student Updated',
           description: `${formData.name} has been updated successfully.`,
         });
-        // navigate('/dashboard'); // Removed redirect on edit
+        setIsDirty(false); // Important: Clear flag before nav
+        // navigate('/dashboard'); 
       } else {
         // New Student
         await addStudent({
@@ -164,9 +198,10 @@ const AddStudent = () => {
           isAlumni: false,
         });
         toast({
-          title: 'Registration Successful', // Updated toast message
-          description: `${formData.name} has been added to the system.`, // Updated toast message
+          title: 'Registration Successful',
+          description: `${formData.name} has been added to the system.`,
         });
+        setIsDirty(false); // Important: Clear flag before nav
         navigate('/dashboard');
       }
     } catch (error) {

@@ -64,7 +64,7 @@ const Tasks = () => {
 
   const filteredTasks = tasks.filter(task => {
     const matchesFilter = filter === 'all' ? true : task.status === filter;
-    const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = (task.title || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchesFilter && matchesSearch;
   });
 

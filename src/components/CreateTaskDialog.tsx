@@ -43,8 +43,8 @@ export const CreateTaskDialog = ({ open, onOpenChange, onTaskCreate }: CreateTas
 
     const filteredStudents = students.filter(s =>
         !s.isAlumni && (
-            s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            s.roomNo.toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (s.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+            (s.roomNo || '').toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
             (s.mobile && s.mobile.toString().includes(searchQuery))
         )
     );

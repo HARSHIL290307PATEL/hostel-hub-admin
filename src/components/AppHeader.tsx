@@ -35,7 +35,29 @@ export const AppHeader = ({ title }: AppHeaderProps) => {
   const isDashboard = location.pathname === '/dashboard';
 
   const handleBack = () => {
-    navigate(-1);
+    const path = location.pathname;
+
+    // Edit Page -> Detail Page
+    if (path.includes('/edit')) {
+      navigate(path.replace('/edit', ''));
+      return;
+    }
+
+    // Add Page -> Student List
+    if (path.includes('/students/add')) {
+      navigate('/students');
+      return;
+    }
+
+    // Detail Page -> Student List
+    // Matches /students/xyz but not /students/add or just /students
+    if (path.match(/^\/students\/[^/]+$/)) {
+      navigate('/students');
+      return;
+    }
+
+    // Default -> Dashboard
+    navigate('/dashboard');
   };
 
   return (
@@ -86,9 +108,9 @@ export const AppHeader = ({ title }: AppHeaderProps) => {
         {/* Centered Logo */}
         <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
           <img
-            src="/logo.png"
+            src="/header-logo.png"
             alt="Logo"
-            className="h-14 sm:h-16 w-auto object-contain cursor-pointer transition-transform hover:scale-110 active:scale-90"
+            className="h-14 sm:h-16 w-auto object-contain cursor-pointer transition-transform hover:scale-110 active:scale-90 mix-blend-multiply"
             onClick={() => navigate('/dashboard')}
           />
         </div>

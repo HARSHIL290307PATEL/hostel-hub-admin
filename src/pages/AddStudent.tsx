@@ -134,7 +134,7 @@ const AddStudent = () => {
     try {
       // Room Occupancy Check
       const students = await getStudents();
-      const roommates = students.filter(s => s.roomNo === formData.roomNo && s.id !== id);
+      const roommates = students.filter(s => s.roomNo === formData.roomNo && s.id !== id && !s.isAlumni);
 
       if (roommates.length >= 2) {
         toast({

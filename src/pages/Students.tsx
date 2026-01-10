@@ -165,6 +165,7 @@ const Students = () => {
         student={selectedStudent}
         isOpen={isProfileOpen}
         onClose={() => setIsProfileOpen(false)}
+        onUpdate={fetchStudents}
       />
     </div>
   );

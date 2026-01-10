@@ -18,6 +18,7 @@ import NotFound from "./pages/NotFound";
 import Whatsapp from "./pages/Whatsapp";
 
 import { TaskNotificationManager } from "@/components/TaskNotificationManager";
+import { InstallPrompt } from "@/components/InstallPrompt";
 
 const queryClient = new QueryClient();
 
@@ -59,6 +60,7 @@ const App = () => (
       <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
         <AuthProvider>
           <TaskNotificationManager />
+          <InstallPrompt />
           <AppRoutes />
         </AuthProvider>
       </BrowserRouter>

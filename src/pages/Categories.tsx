@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Tags, Plus, Users, Search, CheckCircle2, X, Trash2, ChevronRight, ChevronDown, Loader2 } from 'lucide-react';
+import { Tags, Plus, Users, Search, CheckCircle2, X, Trash2, ChevronRight, ChevronDown, Loader2, Eye } from 'lucide-react';
 import { AppHeader } from '@/components/AppHeader';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -266,6 +266,18 @@ const Categories = () => {
                             e.stopPropagation();
                             setSelectedKaryakartaId(main.id);
                           }}
+                          title="View Students"
+                        >
+                          <Eye className="w-5 h-5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-muted-foreground hover:text-primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedKaryakartaId(main.id);
+                          }}
                           title="Add Student"
                         >
                           <Plus className="w-5 h-5" />
@@ -302,6 +314,18 @@ const Categories = () => {
                                 </Badge>
                               </div>
                               <div className="flex items-center gap-1 transition-opacity">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-muted-foreground hover:text-primary"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedKaryakartaId(sub.id);
+                                  }}
+                                  title="View Students"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </Button>
                                 <Button
                                   variant="ghost"
                                   size="icon"

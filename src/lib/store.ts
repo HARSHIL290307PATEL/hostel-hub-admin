@@ -348,6 +348,90 @@ export const deleteEducationResource = async (id: string) => {
     }
 };
 
+// --- Student Results ---
+
+export interface StudentResult {
+    id: string;
+    studentId: string;
+    semester: string;
+    sgpa: string;
+    cgpa: string;
+    backlogs: number;
+    examMonthYear: string;
+    createdAt: string;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const fromDbResult = (db: any): StudentResult => ({
+    id: db.id,
+    studentId: db.student_id,
+    semester: db.semester,
+    sgpa: db.sgpa,
+    cgpa: db.cgpa,
+    backlogs: db.backlogs,
+    examMonthYear: db.exam_month_year,
+    createdAt: db.created_at,
+});
+
+const toDbResult = (result: Partial<StudentResult>) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const db: any = { ...result };
+    if (result.studentId !== undefined) db.student_id = result.studentId;
+    if (result.examMonthYear !== undefined) db.exam_month_year = result.examMonthYear;
+
+    delete db.studentId;
+    delete db.examMonthYear;
+
+    return db;
+};
+
+export const getStudentResults = async (studentId: string): Promise<StudentResult[]> => {
+    try {
+        const { data, error } = await supabase
+            .from('student_results')
+            .select('*')
+            .eq('student_id', studentId)
+            .order('created_at', { ascending: false }); // Latest first
+
+        if (error) {
+            console.warn('Error fetching results (check table):', error);
+            return [];
+        }
+        return (data || []).map(fromDbResult);
+    } catch (error) {
+        console.error('Unexpected error fetching results:', error);
+        return [];
+    }
+};
+
+export const addStudentResult = async (result: Omit<StudentResult, 'id' | 'createdAt'>) => {
+    try {
+        const dbPayload = toDbResult(result);
+        const { data, error } = await supabase
+            .from('student_results')
+            .insert([dbPayload])
+            .select()
+            .single();
+
+        if (error) throw error;
+        return fromDbResult(data);
+    } catch (error) {
+        console.error('Error adding result:', error);
+        throw error;
+    }
+};
+
+export const deleteStudentResult = async (id: string) => {
+    try {
+        const { error } = await supabase.from('student_results').delete().eq('id', id);
+        if (error) throw error;
+        return true;
+    } catch (error) {
+        console.error('Error deleting result:', error);
+        throw error;
+    }
+};
+
 // Settings
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const getSetting = async (key: string) => {

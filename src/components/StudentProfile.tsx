@@ -9,11 +9,16 @@ import { useToast } from '@/hooks/use-toast';
 interface StudentProfileProps {
     student: Student;
     onClose?: () => void;
+    onUpdate?: () => void;
+    hideEditAction?: boolean;
 }
 
-export const StudentProfile = ({ student, onClose }: StudentProfileProps) => {
+import { StudentResultsDialog } from './StudentResultsDialog';
+
+export const StudentProfile = ({ student, onClose, onUpdate, hideEditAction = false }: StudentProfileProps) => {
     const navigate = useNavigate();
     const { toast } = useToast();
+    const [isResultsOpen, setIsResultsOpen] = React.useState(false);
 
     const handleMoveToAlumni = async () => {
         try {
@@ -22,6 +27,7 @@ export const StudentProfile = ({ student, onClose }: StudentProfileProps) => {
                 title: 'Moved to Alumni',
                 description: `${student.name} has been moved to alumni list.`,
             });
+            onUpdate?.();
             if (onClose) onClose();
             else navigate(-1); // Go back if no onClose (e.g., full page)
         } catch (error) {
@@ -66,16 +72,18 @@ export const StudentProfile = ({ student, onClose }: StudentProfileProps) => {
         }
     ];
 
+    const isCompact = hideEditAction;
+
     return (
         <div className="space-y-6">
             {/* Profile Card */}
-            <div className="bg-white border border-border/50 rounded-3xl shadow-soft p-6 sm:p-8 text-center relative overflow-hidden">
-                <div className="w-32 h-32 mx-auto mb-6 rounded-3xl overflow-hidden shadow-soft-lg bg-muted/20 border-4 border-white">
+            <div className={`bg-white border border-border/50 rounded-3xl shadow-soft text-center relative overflow-hidden ${isCompact ? 'p-4 sm:p-6' : 'p-6 sm:p-8'}`}>
+                <div className={`${isCompact ? 'w-24 h-24 mb-4' : 'w-32 h-32 mb-6'} mx-auto rounded-3xl overflow-hidden shadow-soft-lg bg-muted/20 border-4 border-white`}>
                     {student.profileImage ? (
                         <img src={student.profileImage} alt={student.name} className="w-full h-full object-cover" />
                     ) : (
                         <div className="w-full h-full bg-primary flex items-center justify-center">
-                            <span className="text-5xl font-extrabold text-white">
+                            <span className={`${isCompact ? 'text-3xl' : 'text-5xl'} font-extrabold text-white`}>
                                 {student.name.charAt(0)}
                             </span>
                         </div>
@@ -83,21 +91,23 @@ export const StudentProfile = ({ student, onClose }: StudentProfileProps) => {
                 </div>
 
                 <div className="space-y-1">
-                    <h2 className="text-xl sm:text-3xl font-extrabold text-foreground tracking-tight truncate px-2">{student.name}</h2>
+                    <h2 className={`${isCompact ? 'text-lg sm:text-2xl' : 'text-xl sm:text-3xl'} font-extrabold text-foreground tracking-tight truncate px-2`}>{student.name}</h2>
                     <p className="text-primary font-bold uppercase tracking-[0.2em] text-[10px] sm:text-xs">Room {student.roomNo}</p>
                 </div>
 
-                <div className="mt-8 flex flex-col sm:flex-row justify-center gap-3">
+                <div className={`${isCompact ? 'mt-4' : 'mt-8'} flex flex-col sm:flex-row justify-center gap-3`}>
                     {!student.isAlumni ? (
                         <>
-                            <Button
-                                size="lg"
-                                className="rounded-2xl h-12 px-8 font-bold bg-primary hover:bg-primary/90 shadow-soft w-full sm:w-auto"
-                                onClick={() => navigate(`/students/${student.id}/edit`)}
-                            >
-                                <Edit className="w-4 h-4 mr-2" />
-                                Edit Profile
-                            </Button>
+                            {!hideEditAction && (
+                                <Button
+                                    size="lg"
+                                    className="rounded-2xl h-12 px-8 font-bold bg-primary hover:bg-primary/90 shadow-soft w-full sm:w-auto"
+                                    onClick={() => navigate(`/students/${student.id}/edit`)}
+                                >
+                                    <Edit className="w-4 h-4 mr-2" />
+                                    Edit Profile
+                                </Button>
+                            )}
                             <Button
                                 size="lg"
                                 variant="secondary"
@@ -128,7 +138,8 @@ export const StudentProfile = ({ student, onClose }: StudentProfileProps) => {
                                 return (
                                     <div
                                         key={item.label}
-                                        className="flex items-center gap-4 px-4 py-3 sm:px-6 sm:py-4 hover:bg-primary/[0.02] transition-colors"
+                                        className={`flex items-center gap-4 px-4 py-3 sm:px-6 sm:py-4 transition-colors ${item.label === 'Result/CGPA' ? 'cursor-pointer hover:bg-primary/10' : 'hover:bg-primary/[0.02]'}`}
+                                        onClick={() => item.label === 'Result/CGPA' && setIsResultsOpen(true)}
                                     >
                                         <div className="w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center shrink-0">
                                             {Icon && <Icon className="w-5 h-5 text-muted-foreground" />}
@@ -144,6 +155,12 @@ export const StudentProfile = ({ student, onClose }: StudentProfileProps) => {
                     </div>
                 ))}
             </div>
-        </div>
+
+            <StudentResultsDialog
+                student={student}
+                isOpen={isResultsOpen}
+                onClose={() => setIsResultsOpen(false)}
+            />
+        </div >
     );
 };

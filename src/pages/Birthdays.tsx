@@ -75,17 +75,7 @@ const Birthdays = () => {
                         <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">Celebrate with your students today</p>
                     </div>
 
-                    <Button
-                        variant="outline"
-                        size="icon"
-                        className="rounded-xl relative z-10 bg-white/50 backdrop-blur-sm border-primary/20 hover:bg-white hover:text-primary transition-all"
-                        onClick={() => {
-                            setTempTemplate(messageTemplate);
-                            setIsEditingTemplate(true);
-                        }}
-                    >
-                        <Settings className="w-5 h-5" />
-                    </Button>
+
                 </div>
 
                 {isEditingTemplate && (
@@ -133,13 +123,24 @@ const Birthdays = () => {
                 )}
 
                 <section className="space-y-6 animate-slide-up">
-                    <div className="flex items-center justify-between">
-                        <h3 className="text-lg font-bold text-foreground/80 flex items-center gap-2">
+                    <div className="flex items-center gap-3">
+                        <h3 className="text-lg font-bold text-foreground/80">
                             Today's Celebrations
-                            <span className="px-3 py-1 gradient-primary text-white text-xs font-bold rounded-full shadow-soft">
-                                {birthdayStudents.length}
-                            </span>
                         </h3>
+                        <span className="px-3 py-1 gradient-primary text-white text-xs font-bold rounded-full shadow-soft">
+                            {birthdayStudents.length}
+                        </span>
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            className="w-8 h-8 rounded-full bg-white/50 backdrop-blur-sm border-primary/20 hover:bg-white hover:text-primary transition-all shadow-sm"
+                            onClick={() => {
+                                setTempTemplate(messageTemplate);
+                                setIsEditingTemplate(true);
+                            }}
+                        >
+                            <Settings className="w-4 h-4" />
+                        </Button>
                     </div>
 
                     <div className="space-y-4 pb-safe">
@@ -204,7 +205,7 @@ const Birthdays = () => {
                     </div>
                 </section>
             </main>
-        </div>
+        </div >
     );
 };
 

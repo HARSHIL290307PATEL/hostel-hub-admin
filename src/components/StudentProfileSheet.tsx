@@ -4,6 +4,7 @@ import {
     SheetContent,
     SheetHeader,
     SheetTitle,
+    SheetDescription,
 } from "@/components/ui/sheet";
 import { StudentProfile } from "./StudentProfile";
 import { Student } from "@/types";
@@ -12,12 +13,14 @@ interface StudentProfileSheetProps {
     student: Student | null;
     isOpen: boolean;
     onClose: () => void;
+    onUpdate?: () => void;
 }
 
 export const StudentProfileSheet = ({
     student,
     isOpen,
-    onClose
+    onClose,
+    onUpdate
 }: StudentProfileSheetProps) => {
     const [touchStart, setTouchStart] = React.useState<number | null>(null);
 
@@ -51,10 +54,11 @@ export const StudentProfileSheet = ({
             >
                 <SheetHeader className="p-6 pb-0 sticky top-0 bg-transparent z-10">
                     <SheetTitle className="sr-only">Student Profile - {student.name}</SheetTitle>
+                    <SheetDescription className="sr-only">Detailed profile view for {student.name}</SheetDescription>
                 </SheetHeader>
 
                 <div className="p-6 pt-10">
-                    <StudentProfile student={student} onClose={onClose} />
+                    <StudentProfile student={student} onClose={onClose} onUpdate={onUpdate} hideEditAction={true} />
                 </div>
             </SheetContent>
         </Sheet>

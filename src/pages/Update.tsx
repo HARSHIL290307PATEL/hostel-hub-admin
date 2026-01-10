@@ -82,25 +82,26 @@ const Update = () => {
             <Database className="w-8 h-8 text-primary" />
             Update
           </h2>
-          <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">Update or remove resident records</p>
+          <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">Update or remove hostel records</p>
         </div>
 
         <Tabs defaultValue="single" value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <div className="relative group mb-6">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
+            <Input
+              placeholder="Search by ID, name or room..."
+              className="pl-12 h-14 bg-white border-border/50 rounded-2xl shadow-soft focus:ring-primary/20 focus:border-primary transition-all text-base"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
           <TabsList className="flex p-1.5 bg-muted/30 backdrop-blur-sm rounded-2xl border border-border/50 shadow-sm w-full mb-8">
             <TabsTrigger value="single" className="flex-1 py-3 rounded-xl text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-soft">Manage</TabsTrigger>
             <TabsTrigger value="bulk" className="flex-1 py-3 rounded-xl text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-soft">Bulk Upload</TabsTrigger>
           </TabsList>
 
           <TabsContent value="single" className="space-y-6">
-            <div className="relative group">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
-              <Input
-                placeholder="Search by ID, name or room..."
-                className="pl-12 h-14 bg-white border-border/50 rounded-2xl shadow-soft focus:ring-primary/20 focus:border-primary transition-all text-base"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-              />
-            </div>
 
             <div className="space-y-4">
               {filteredStudents.length > 0 ? (

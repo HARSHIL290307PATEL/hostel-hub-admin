@@ -37,6 +37,7 @@ export default function Whatsapp() {
     const [selectedGroupId, setSelectedGroupId] = useState<string | null>(null); // null means "All"
     const [message, setMessage] = useState("");
     const [sending, setSending] = useState(false);
+    const [showAlumni, setShowAlumni] = useState(false);
 
     useEffect(() => {
         const init = async () => {
@@ -106,7 +107,8 @@ export default function Whatsapp() {
     // Filter Students
     const filteredStudents = students.filter(s => {
         // 1. Basic Filters (Alumni, Search)
-        const matchesSearch = !s.isAlumni && (
+        const matchesType = showAlumni ? s.isAlumni : !s.isAlumni;
+        const matchesSearch = matchesType && (
             s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
             s.roomNo.toString().includes(searchQuery) ||
             (s.mobile && s.mobile.includes(searchQuery))
@@ -196,17 +198,37 @@ export default function Whatsapp() {
 
                 {/* Left Column: Student Selection */}
                 <div className="space-y-4 h-full flex flex-col">
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                            <h2 className="text-2xl font-bold flex items-center gap-2">
-                                <Users className="w-6 h-6 text-primary" />
-                                Select Students
-                            </h2>
-                            <p className="text-muted-foreground text-sm">Target: <span className="font-semibold text-primary">{selectedGroupName}</span></p>
+                    <div className="flex flex-col gap-4">
+                        <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                                <h2 className="text-2xl font-bold flex items-center gap-2">
+                                    <Users className="w-6 h-6 text-primary" />
+                                    Select Students
+                                </h2>
+                                <p className="text-muted-foreground text-sm">Target: <span className="font-semibold text-primary">{selectedGroupName}</span></p>
+                            </div>
+                            <Badge variant="secondary" className="px-3 py-1 text-sm bg-primary/10 text-primary border-primary/20">
+                                Selected: {selectedIds.size}
+                            </Badge>
                         </div>
-                        <Badge variant="secondary" className="px-3 py-1 text-sm">
-                            Selected: {selectedIds.size}
-                        </Badge>
+
+                        {/* Toggle Current / Alumni */}
+                        <div className="flex p-1 bg-muted/50 rounded-xl border border-border/50">
+                            <button
+                                onClick={() => setShowAlumni(false)}
+                                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${!showAlumni ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                                    }`}
+                            >
+                                Current
+                            </button>
+                            <button
+                                onClick={() => setShowAlumni(true)}
+                                className={`flex-1 py-2 text-sm font-bold rounded-lg transition-all ${showAlumni ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                                    }`}
+                            >
+                                Alumni
+                            </button>
+                        </div>
                     </div>
 
                     <div className="flex gap-2">

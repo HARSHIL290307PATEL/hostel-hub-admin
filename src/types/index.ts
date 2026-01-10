@@ -57,3 +57,14 @@ export interface EducationResource {
   description?: string;
   created_at?: string;
 }
+
+export interface StudentResult {
+  id: string;
+  studentId: string;
+  semester: string;
+  sgpa: string; // Storing as string to handle "9.5" or "A+" flexibly, or use number if strict
+  cgpa: string;
+  backlogs: number;
+  examMonthYear: string;
+  createdAt: string;
+}

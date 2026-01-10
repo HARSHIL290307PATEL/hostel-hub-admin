@@ -52,12 +52,11 @@ const Login = () => {
           <div className="text-center mb-10">
             <div className="mx-auto mb-6 flex items-center justify-center">
               <img
-                src="/login-logo.jpg"
+                src="/pavitra-house-logo-v2.png"
                 alt="Hari-Saurabh Hostel"
-                className="w-48 h-auto object-contain rounded-2xl"
+                className="w-80 h-auto object-contain rounded-2xl mix-blend-multiply"
               />
             </div>
-            <p className="text-sm font-medium text-muted-foreground mt-2 uppercase tracking-widest">Admin Portal</p>
           </div>
 
           {/* Login Form */}

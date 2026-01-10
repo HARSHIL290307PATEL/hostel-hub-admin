@@ -269,7 +269,7 @@ export default function Whatsapp() {
                         </Button>
                     </div>
 
-                    <div className="flex-1 border rounded-xl bg-white/50 backdrop-blur-sm overflow-hidden flex flex-col shadow-sm max-h-[600px]">
+                    <div className="flex-1 border rounded-xl bg-white/50 backdrop-blur-sm overflow-hidden flex flex-col shadow-sm max-h-[320px]">
                         <div className="overflow-y-auto p-2 space-y-1 flex-1">
                             {filteredStudents.length > 0 ? (
                                 filteredStudents.map(student => (
@@ -386,3 +386,4 @@ export default function Whatsapp() {
         </div>
     );
 }
+

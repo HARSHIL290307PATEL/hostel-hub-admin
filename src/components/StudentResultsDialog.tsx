@@ -77,7 +77,7 @@ export const StudentResultsDialog = ({ student, isOpen, onClose }: StudentResult
 
     return (
         <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-            <DialogContent className="sm:max-w-lg w-[95vw] bg-white/95 backdrop-blur-xl border-white/20 shadow-2xl p-4 sm:p-6 rounded-3xl">
+            <DialogContent className="sm:max-w-lg w-[95vw] max-h-[85vh] overflow-y-auto bg-white/95 backdrop-blur-xl border-white/20 shadow-2xl p-4 sm:p-6 rounded-3xl">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2 text-xl sm:text-2xl">
                         <GraduationCap className="h-5 w-5 sm:h-6 sm:w-6 text-primary" />
@@ -92,56 +92,60 @@ export const StudentResultsDialog = ({ student, isOpen, onClose }: StudentResult
                     {/* Input Form - Mobile Optimized */}
                     <div className="bg-muted/30 rounded-xl border border-border/50 p-3 sm:p-4">
                         <Label className="text-xs font-bold text-muted-foreground uppercase mb-3 block">Add New Result</Label>
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="col-span-1 space-y-1">
-                                <Label className="text-[10px] uppercase font-bold">Semester</Label>
+                        <div className="grid grid-cols-2 gap-2">
+                            <div className="col-span-1 space-y-0.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground/70 ml-1">Semester</Label>
                                 <Input
                                     placeholder="Sem 1"
                                     value={newResult.semester}
                                     onChange={e => setNewResult({ ...newResult, semester: e.target.value })}
-                                    className="h-8 bg-white text-sm"
+                                    className="h-7 bg-white text-[10px] rounded-full px-3"
                                 />
                             </div>
-                            <div className="col-span-1 space-y-1">
-                                <Label className="text-[10px] uppercase font-bold">SGPA / %</Label>
+                            <div className="col-span-1 space-y-0.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground/70 ml-1">SGPA / %</Label>
                                 <Input
                                     placeholder="9.5"
                                     value={newResult.sgpa}
                                     onChange={e => setNewResult({ ...newResult, sgpa: e.target.value })}
-                                    className="h-8 bg-white text-sm"
+                                    className="h-7 bg-white text-[10px] rounded-full px-3"
                                 />
                             </div>
-                            <div className="col-span-1 space-y-1">
-                                <Label className="text-[10px] uppercase font-bold">CGPA (Opt)</Label>
-                                <Input
-                                    placeholder="9.5"
-                                    value={newResult.cgpa}
-                                    onChange={e => setNewResult({ ...newResult, cgpa: e.target.value })}
-                                    className="h-8 bg-white text-sm"
-                                />
-                            </div>
-                            <div className="col-span-1 space-y-1">
-                                <Label className="text-[10px] uppercase font-bold">Backlogs</Label>
+                            <div className="col-span-1 space-y-0.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground/70 ml-1">Backlogs</Label>
                                 <Input
                                     type="number"
                                     value={newResult.backlogs}
                                     onChange={e => setNewResult({ ...newResult, backlogs: e.target.value })}
-                                    className="h-8 bg-white text-sm"
+                                    className="h-7 bg-white text-[10px] rounded-full px-3"
                                 />
                             </div>
-                            <div className="col-span-2 space-y-1">
-                                <Label className="text-[10px] uppercase font-bold">Month/Year</Label>
-                                <div className="flex gap-2">
-                                    <Input
-                                        placeholder="Dec 2024"
-                                        value={newResult.examMonthYear}
-                                        onChange={e => setNewResult({ ...newResult, examMonthYear: e.target.value })}
-                                        className="h-8 bg-white text-sm flex-1"
-                                    />
-                                    <Button size="sm" className="h-8 px-4" onClick={handleAdd}>
-                                        <Plus className="h-4 w-4" />
-                                    </Button>
-                                </div>
+
+                            <div className="col-span-1 space-y-0.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground/70 ml-1">CGPA (Opt)</Label>
+                                <Input
+                                    placeholder="9.5"
+                                    value={newResult.cgpa}
+                                    onChange={e => setNewResult({ ...newResult, cgpa: e.target.value })}
+                                    className="h-7 bg-white text-[10px] rounded-full px-3"
+                                />
+                            </div>
+
+                            <div className="col-span-1 space-y-0.5">
+                                <Label className="text-[10px] uppercase font-bold text-muted-foreground/70 ml-1">Month/Year</Label>
+                                <Input
+                                    placeholder="Dec 2024"
+                                    value={newResult.examMonthYear}
+                                    onChange={e => setNewResult({ ...newResult, examMonthYear: e.target.value })}
+                                    className="h-7 bg-white text-[10px] w-full rounded-full px-3"
+                                />
+                            </div>
+
+                            <div className="col-span-1 flex items-end">
+                                <Button className="w-full h-7 font-bold shadow-soft text-[10px] p-0 bg-primary/90 hover:bg-primary rounded-full" onClick={handleAdd}>
+                                    <Plus className="h-3 w-3 mr-1" />
+                                    Add
+                                </Button>
                             </div>
                         </div>
                     </div>

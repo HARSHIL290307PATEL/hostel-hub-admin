@@ -92,14 +92,14 @@ export const StudentResultsDialog = ({ student, isOpen, onClose }: StudentResult
                     {/* Input Form - Mobile Optimized */}
                     <div className="bg-muted/30 rounded-xl border border-border/50 p-3 sm:p-4">
                         <Label className="text-xs font-bold text-muted-foreground uppercase mb-3 block">Add New Result</Label>
-                        <div className="grid grid-cols-2 gap-2">
+                        <div className="grid grid-cols-2 gap-x-2 gap-y-1.5">
                             <div className="col-span-1 space-y-0.5">
                                 <Label className="text-[10px] uppercase font-bold text-muted-foreground/70 ml-1">Semester</Label>
                                 <Input
                                     placeholder="Sem 1"
                                     value={newResult.semester}
                                     onChange={e => setNewResult({ ...newResult, semester: e.target.value })}
-                                    className="h-7 bg-white text-[10px] rounded-full px-3"
+                                    className="h-6 bg-white text-[10px] rounded-full px-2 shadow-none border-border/60"
                                 />
                             </div>
                             <div className="col-span-1 space-y-0.5">
@@ -108,7 +108,7 @@ export const StudentResultsDialog = ({ student, isOpen, onClose }: StudentResult
                                     placeholder="9.5"
                                     value={newResult.sgpa}
                                     onChange={e => setNewResult({ ...newResult, sgpa: e.target.value })}
-                                    className="h-7 bg-white text-[10px] rounded-full px-3"
+                                    className="h-6 bg-white text-[10px] rounded-full px-2 shadow-none border-border/60"
                                 />
                             </div>
                             <div className="col-span-1 space-y-0.5">
@@ -117,7 +117,7 @@ export const StudentResultsDialog = ({ student, isOpen, onClose }: StudentResult
                                     type="number"
                                     value={newResult.backlogs}
                                     onChange={e => setNewResult({ ...newResult, backlogs: e.target.value })}
-                                    className="h-7 bg-white text-[10px] rounded-full px-3"
+                                    className="h-6 bg-white text-[10px] rounded-full px-2 shadow-none border-border/60"
                                 />
                             </div>
 
@@ -127,7 +127,7 @@ export const StudentResultsDialog = ({ student, isOpen, onClose }: StudentResult
                                     placeholder="9.5"
                                     value={newResult.cgpa}
                                     onChange={e => setNewResult({ ...newResult, cgpa: e.target.value })}
-                                    className="h-7 bg-white text-[10px] rounded-full px-3"
+                                    className="h-6 bg-white text-[10px] rounded-full px-2 shadow-none border-border/60"
                                 />
                             </div>
 
@@ -137,12 +137,12 @@ export const StudentResultsDialog = ({ student, isOpen, onClose }: StudentResult
                                     placeholder="Dec 2024"
                                     value={newResult.examMonthYear}
                                     onChange={e => setNewResult({ ...newResult, examMonthYear: e.target.value })}
-                                    className="h-7 bg-white text-[10px] w-full rounded-full px-3"
+                                    className="h-6 bg-white text-[10px] w-full rounded-full px-2 shadow-none border-border/60"
                                 />
                             </div>
 
                             <div className="col-span-1 flex items-end">
-                                <Button className="w-full h-7 font-bold shadow-soft text-[10px] p-0 bg-primary/90 hover:bg-primary rounded-full" onClick={handleAdd}>
+                                <Button className="w-full h-6 font-bold shadow-soft text-[10px] p-0 bg-primary/90 hover:bg-primary rounded-full mb-[1px]" onClick={handleAdd}>
                                     <Plus className="h-3 w-3 mr-1" />
                                     Add
                                 </Button>

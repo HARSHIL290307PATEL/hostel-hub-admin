@@ -10,6 +10,20 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Check, ChevronsUpDown } from "lucide-react"
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -147,11 +161,7 @@ const Categories = () => {
   const selectedKaryakarta = karyakartas.find(k => k.id === selectedKaryakartaId);
   const mainKaryakartas = karyakartas.filter(k => k.type === 'main');
 
-  // Filter students for the dialog list
-  const filteredStudents = students.filter(s =>
-    s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.mobile?.includes(searchQuery)
-  );
+
 
   return (
     <div className="min-h-screen bg-background pb-20 relative animate-fade-in">
@@ -162,7 +172,7 @@ const Categories = () => {
         <div className="space-y-1">
           <h2 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-3">
             <Users className="w-8 h-8 text-primary" />
-            Karyakarta Hierarchy
+            Karyakarta
           </h2>
           <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">Manage groups and sub-groups</p>
         </div>
@@ -205,7 +215,7 @@ const Categories = () => {
 
             <div className="flex-1 flex gap-2">
               <Input
-                placeholder={newKaryakartaType === 'main' ? "Enter Main Karyakarta Name..." : "Enter Sub-Karyakarta Name..."}
+                placeholder={newKaryakartaType === 'main' ? "Karyakarta Name" : "Sub-Karyakarta Name"}
                 value={newKaryakartaName}
                 onChange={(e) => setNewKaryakartaName(e.target.value)}
                 className="h-12 text-lg rounded-xl"
@@ -247,14 +257,28 @@ const Categories = () => {
                         </div>
                       </div>
 
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                        onClick={(e) => handleDeleteKaryakarta(main.id, e)}
-                      >
-                        <Trash2 className="w-5 h-5" />
-                      </Button>
+                      <div className="flex items-center gap-1 transition-opacity">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-muted-foreground hover:text-primary"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedKaryakartaId(main.id);
+                          }}
+                          title="Add Student"
+                        >
+                          <Plus className="w-5 h-5" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-muted-foreground hover:text-destructive"
+                          onClick={(e) => handleDeleteKaryakarta(main.id, e)}
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </Button>
+                      </div>
                     </div>
 
                     {/* Sub Karyakartas List */}
@@ -277,14 +301,27 @@ const Categories = () => {
                                   {sub.studentIds.length} Students
                                 </Badge>
                               </div>
-                              <Button
-                                variant="ghost"
-                                size="icon"
-                                className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover/sub:opacity-100 transition-opacity"
-                                onClick={(e) => handleDeleteKaryakarta(sub.id, e)}
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
+                              <div className="flex items-center gap-1 transition-opacity">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-muted-foreground hover:text-primary"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedKaryakartaId(sub.id);
+                                  }}
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                                  onClick={(e) => handleDeleteKaryakarta(sub.id, e)}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -333,56 +370,109 @@ const Categories = () => {
               </DialogTitle>
             </DialogHeader>
 
-            <div className="relative mt-4">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Search students..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-12 text-base"
-              />
-            </div>
+            <div className="flex flex-col gap-6 mt-4 flex-1 overflow-hidden">
 
-            <ScrollArea className="flex-1 pr-4 mt-2">
-              <div className="space-y-2">
-                {filteredStudents.map(student => {
-                  const isAssigned = selectedKaryakarta?.studentIds.includes(student.id);
-                  return (
-                    <div
-                      key={student.id}
-                      onClick={() => selectedKaryakartaId && toggleStudentAssignment(selectedKaryakartaId, student.id)}
-                      className={`
-                        flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all
-                        ${isAssigned
-                          ? 'bg-primary/5 border-primary shadow-sm'
-                          : 'bg-white border-border/50 hover:bg-gray-50'}
-                      `}
+              {/* Add Student Dropdown Section */}
+              <div className="space-y-2 shrink-0">
+                <h4 className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Add Student</h4>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      role="combobox"
+                      className="w-full justify-between h-12 rounded-xl text-left font-normal"
                     >
-                      <div className="flex items-center gap-3">
-                        <div className={`
-                          w-10 h-10 rounded-full flex items-center justify-center font-bold
-                          ${isAssigned ? 'bg-primary text-white' : 'bg-gray-100 text-gray-500'}
-                        `}>
-                          {student.name.charAt(0)}
-                        </div>
-                        <div>
-                          <p className={`font-bold ${isAssigned ? 'text-primary' : 'text-foreground'}`}>
-                            {student.name}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {student.roomNo ? `Room: ${student.roomNo}` : 'No Room'} • {student.mobile || 'No Mobile'}
-                          </p>
-                        </div>
-                      </div>
-
-                      {isAssigned && (
-                        <CheckCircle2 className="w-5 h-5 text-primary fill-primary/20" />
-                      )}
-                    </div>
-                  );
-                })}
+                      <span className="text-muted-foreground">Select student to add...</span>
+                      <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[400px] p-0" align="start">
+                    <Command>
+                      <CommandInput placeholder="Search student..." />
+                      <CommandList>
+                        <CommandEmpty>No student found.</CommandEmpty>
+                        <CommandGroup>
+                          {students.filter(s => !selectedKaryakarta?.studentIds.includes(s.id)).map((student) => (
+                            <CommandItem
+                              key={student.id}
+                              value={student.name}
+                              onSelect={() => {
+                                if (selectedKaryakartaId) {
+                                  toggleStudentAssignment(selectedKaryakartaId, student.id);
+                                  toast.success(`${student.name} added to group`);
+                                }
+                              }}
+                              className="cursor-pointer"
+                            >
+                              <div className="flex items-center gap-2 w-full">
+                                <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center text-[10px] font-bold text-primary">
+                                  {student.name.charAt(0)}
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-medium">{student.name}</span>
+                                  <span className="text-[10px] text-muted-foreground">Room: {student.roomNo || 'N/A'}</span>
+                                </div>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </CommandList>
+                    </Command>
+                  </PopoverContent>
+                </Popover>
               </div>
-            </ScrollArea>
+
+              {/* Assigned Students List */}
+              <div className="flex-1 flex flex-col min-h-0">
+                <h4 className="text-sm font-bold text-muted-foreground uppercase tracking-widest mb-2 flex items-center justify-between">
+                  Assigned Students
+                  <Badge variant="secondary">{selectedKaryakarta?.studentIds.length || 0}</Badge>
+                </h4>
+
+                <div className="relative flex-1">
+                  <div className="absolute inset-0">
+                    <ScrollArea className="h-full pr-4">
+                      <div className="space-y-2">
+                        {students
+                          .filter(s => selectedKaryakarta?.studentIds.includes(s.id))
+                          .map(student => (
+                            <div
+                              key={student.id}
+                              className="flex items-center justify-between p-3 rounded-xl border border-border/50 bg-white"
+                            >
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center font-bold text-primary">
+                                  {student.name.charAt(0)}
+                                </div>
+                                <div>
+                                  <p className="font-bold text-foreground">{student.name}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {student.roomNo ? `Room: ${student.roomNo}` : 'No Room'} • {student.mobile || 'No Mobile'}
+                                  </p>
+                                </div>
+                              </div>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => selectedKaryakartaId && toggleStudentAssignment(selectedKaryakartaId, student.id)}
+                                className="text-destructive hover:bg-destructive/10 hover:text-destructive h-8 px-3 rounded-lg"
+                              >
+                                Remove
+                              </Button>
+                            </div>
+                          ))}
+                        {selectedKaryakarta?.studentIds.length === 0 && (
+                          <div className="text-center py-10 text-muted-foreground text-sm italic">
+                            No students assigned yet.
+                          </div>
+                        )}
+                      </div>
+                    </ScrollArea>
+                  </div>
+                </div>
+              </div>
+
+            </div>
           </DialogContent>
         </Dialog>
 
@@ -392,4 +482,5 @@ const Categories = () => {
 };
 
 export default Categories;
+
 

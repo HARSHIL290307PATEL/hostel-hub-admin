@@ -35,11 +35,7 @@ export const AppHeader = ({ title }: AppHeaderProps) => {
   const isDashboard = location.pathname === '/dashboard';
 
   const handleBack = () => {
-    if (location.pathname.startsWith('/students/') && location.pathname !== '/students') {
-      navigate('/students');
-    } else {
-      navigate('/dashboard');
-    }
+    navigate(-1);
   };
 
   return (

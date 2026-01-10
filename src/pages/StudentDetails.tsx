@@ -66,7 +66,7 @@ const StudentDetails = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => navigate('/students')}
+            onClick={() => navigate(-1)}
             className="text-muted-foreground hover:text-primary -ml-2"
           >
             <ArrowLeft className="w-6 h-6" />

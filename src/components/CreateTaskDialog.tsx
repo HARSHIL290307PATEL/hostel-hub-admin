@@ -124,7 +124,7 @@ export const CreateTaskDialog = ({ open, onOpenChange, onTaskCreate }: CreateTas
 
     return (
         <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+            <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto rounded-3xl shadow-2xl p-6 border-none">
                 <DialogHeader>
                     <DialogTitle>Create New Task</DialogTitle>
                     <DialogDescription className="sr-only">Fill in the form to create and assign a new task to students.</DialogDescription>

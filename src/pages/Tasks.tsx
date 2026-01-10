@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Plus, CheckCircle2, CircleDashed, ClipboardList, Search } from 'lucide-react';
+import { Plus, ClipboardList, Search } from 'lucide-react';
 import { AppHeader } from '@/components/AppHeader';
 import { TaskItem } from '@/components/TaskItem';
 import { Button } from '@/components/ui/button';
@@ -84,9 +84,6 @@ const Tasks = () => {
     }
   };
 
-  const pendingCount = tasks.filter(t => t.status === 'pending').length;
-  const doneCount = tasks.filter(t => t.status === 'done').length;
-
   return (
     <div className="min-h-screen bg-background pb-20 relative animate-fade-in">
       <AppHeader title="Hari-Saurabh Hostel" />
@@ -112,36 +109,14 @@ const Tasks = () => {
           />
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-2 gap-4">
-          <div className="p-5 bg-white border border-border/50 rounded-2xl shadow-soft flex items-center gap-4 transition-all hover:shadow-soft-lg">
-            <div className="w-12 h-12 rounded-xl bg-warning/10 flex items-center justify-center">
-              <CircleDashed className="w-6 h-6 text-warning" />
-            </div>
-            <div>
-              <p className="text-2xl font-extrabold text-foreground">{pendingCount}</p>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Pending</p>
-            </div>
-          </div>
-          <div className="p-5 bg-white border border-border/50 rounded-2xl shadow-soft flex items-center gap-4 transition-all hover:shadow-soft-lg">
-            <div className="w-12 h-12 rounded-xl bg-success/10 flex items-center justify-center">
-              <CheckCircle2 className="w-6 h-6 text-success" />
-            </div>
-            <div>
-              <p className="text-2xl font-extrabold text-foreground">{doneCount}</p>
-              <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Completed</p>
-            </div>
-          </div>
-        </div>
-
         {/* Filter Tabs */}
-        <div className="flex p-1.5 bg-muted/30 backdrop-blur-sm rounded-2xl border border-border/50 shadow-sm w-full sm:w-max">
-          {(['all', 'pending', 'done'] as const).map((f) => (
+        <div className="grid grid-cols-2 p-1.5 bg-muted/30 backdrop-blur-sm rounded-2xl border border-border/50 shadow-sm w-full">
+          {(['pending', 'done'] as const).map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
               className={cn(
-                "px-8 py-2.5 text-sm font-bold rounded-xl transition-all duration-300 capitalize min-w-[100px]",
+                "py-2.5 text-sm font-bold rounded-xl transition-all duration-300 capitalize",
                 filter === f
                   ? "bg-primary text-white shadow-soft"
                   : "text-muted-foreground hover:text-foreground hover:bg-white/50"
@@ -201,3 +176,4 @@ const Tasks = () => {
 };
 
 export default Tasks;
+

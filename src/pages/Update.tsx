@@ -80,14 +80,14 @@ const Update = () => {
         <div className="space-y-1">
           <h2 className="text-3xl font-extrabold tracking-tight text-foreground flex items-center gap-3">
             <Database className="w-8 h-8 text-primary" />
-            Maintenance
+            Update
           </h2>
           <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">Update or remove resident records</p>
         </div>
 
         <Tabs defaultValue="single" value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="flex p-1.5 bg-muted/30 backdrop-blur-sm rounded-2xl border border-border/50 shadow-sm w-full mb-8">
-            <TabsTrigger value="single" className="flex-1 py-3 rounded-xl text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-soft">View & Manage</TabsTrigger>
+            <TabsTrigger value="single" className="flex-1 py-3 rounded-xl text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-soft">Manage</TabsTrigger>
             <TabsTrigger value="bulk" className="flex-1 py-3 rounded-xl text-sm font-bold data-[state=active]:bg-primary data-[state=active]:text-white data-[state=active]:shadow-soft">Bulk Upload</TabsTrigger>
           </TabsList>
 
@@ -116,23 +116,21 @@ const Update = () => {
                       hideContactActions={true}
                     />
                     {/* Action Overlay */}
-                    <div className="absolute top-1/2 right-4 -translate-y-1/2 flex gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-4 group-hover:translate-x-0">
+                    <div className="absolute top-1/2 right-4 -translate-y-1/2 flex gap-2 transition-all duration-300">
                       <Button
                         size="sm"
-                        className="h-10 px-4 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 shadow-soft"
+                        className="h-10 w-10 p-0 rounded-xl font-bold bg-blue-600 hover:bg-blue-700 shadow-soft"
                         onClick={(e) => handleUpdate(student.id, e)}
                       >
-                        <Edit className="w-4 h-4 mr-2" />
-                        Edit
+                        <Edit className="w-4 h-4" />
                       </Button>
                       <Button
                         size="sm"
                         variant="destructive"
-                        className="h-10 px-4 rounded-xl font-bold shadow-soft"
+                        className="h-10 w-10 p-0 rounded-xl font-bold shadow-soft"
                         onClick={(e) => handleDelete(student.id, e)}
                       >
-                        <Trash2 className="w-4 h-4 mr-2" />
-                        Delete
+                        <Trash2 className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>

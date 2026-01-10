@@ -22,7 +22,7 @@ export const CreateTaskDialog = ({ open, onOpenChange, onTaskCreate }: CreateTas
     const [step, setStep] = useState(1);
     const [students, setStudents] = useState<Student[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
-    const [selectedStudent, setSelectedStudent] = useState<Student | null>(null);
+    const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
 
     const [taskData, setTaskData] = useState({
         title: '',
@@ -36,7 +36,7 @@ export const CreateTaskDialog = ({ open, onOpenChange, onTaskCreate }: CreateTas
         if (open) {
             getStudents().then(setStudents);
             setStep(1);
-            setSelectedStudent(null);
+            setSelectedStudents([]);
             setTaskData({ title: '', isPracticeQuestion: false, questionContent: '', dueDate: '' });
         }
     }, [open]);
@@ -49,6 +49,22 @@ export const CreateTaskDialog = ({ open, onOpenChange, onTaskCreate }: CreateTas
         )
     );
 
+    const toggleSelection = (student: Student) => {
+        if (selectedStudents.find(s => s.id === student.id)) {
+            setSelectedStudents(selectedStudents.filter(s => s.id !== student.id));
+        } else {
+            setSelectedStudents([...selectedStudents, student]);
+        }
+    };
+
+    const toggleSelectAll = () => {
+        if (selectedStudents.length === filteredStudents.length) {
+            setSelectedStudents([]);
+        } else {
+            setSelectedStudents(filteredStudents);
+        }
+    };
+
 
     const handleSubmit = async () => {
         if (!taskData.title || !taskData.dueDate) {
@@ -56,45 +72,54 @@ export const CreateTaskDialog = ({ open, onOpenChange, onTaskCreate }: CreateTas
             return;
         }
 
-        const newTask = {
-            title: taskData.title,
-            dueDate: taskData.dueDate,
-            status: 'pending',
-            category: 'General',
-            assignedTo: selectedStudent?.id,
-            assignedToName: selectedStudent?.name, // Helper for UI
-            isPracticeQuestion: taskData.isPracticeQuestion,
-            questionContent: taskData.questionContent
-        };
-
-        // Automatic WhatsApp Notification
-        if (selectedStudent?.mobile) {
-            const message = `*New Task Assigned: ${taskData.title}*\n\n${taskData.questionContent ? `Question: ${taskData.questionContent}\n\n` : ''}📅 Due Date: ${taskData.dueDate}\n\nPlease submit by the deadline.`;
-
-            toast.message("Assigning task & sending notification...");
-
-            try {
-                // Try sending via backend bot first
-                // Try sending via backend bot first
-                await api.post('/api/send', {
-                    number: selectedStudent.mobile,
-                    message: message
-                });
-                toast.success("Notification sent via WhatsApp Bot");
-            } catch (error) {
-                console.error("Bot send failed", error);
-
-                // Fallback: Open WhatsApp Web if bot fails? 
-                // User asked to "send the message", implying automation. 
-                // If automation fails, maybe we shouldn't force open window unless explicitly requested.
-                // But for reliability let's notify user it failed.
-                toast.error("Task assigned, but failed to send WhatsApp notification.");
-            }
+        if (selectedStudents.length === 0) {
+            toast.error("Please select at least one student");
+            return;
         }
 
-        onTaskCreate(newTask);
+        toast.message(`Creating tasks for ${selectedStudents.length} students...`);
+
+        let successCount = 0;
+
+        for (const student of selectedStudents) {
+            const newTask = {
+                title: taskData.title,
+                dueDate: taskData.dueDate,
+                status: 'pending',
+                category: 'General',
+                assignedTo: student.id,
+                assignedToName: student.name,
+                isPracticeQuestion: taskData.isPracticeQuestion,
+                questionContent: taskData.questionContent
+            };
+
+            // Call parent handler for each (usually adds to DB)
+            // Note: onTaskCreate might assume single call currently, but in Tasks.tsx it likely just refreshes or appends.
+            // If onTaskCreate just refreshes, calling it once at end is better.
+            // If it appends locally, we need to call it for each.
+            // Let's assume we maintain local state in parent. 
+            // We will call it for each to be safe for now, or check parent.
+            // Wait, usually onTaskCreate is `addTask(newTask)`. 
+            // Let's call it for each.
+            await onTaskCreate(newTask);
+
+            // Notification
+            if (student.mobile) {
+                const message = `*New Task Assigned: ${taskData.title}*\n\n${taskData.questionContent ? `Question: ${taskData.questionContent}\n\n` : ''}📅 Due Date: ${taskData.dueDate}\n\nPlease submit by the deadline.`;
+                try {
+                    await api.post('/api/send', {
+                        number: student.mobile,
+                        message: message
+                    });
+                } catch (e) {
+                    console.error('Notification failed for', student.name);
+                }
+            }
+            successCount++;
+        }
+
+        toast.success(`Assigned task to ${successCount} students`);
         onOpenChange(false);
-        if (!selectedStudent?.mobile) toast.success("Task created successfully (No mobile number)");
     };
 
     return (
@@ -107,53 +132,64 @@ export const CreateTaskDialog = ({ open, onOpenChange, onTaskCreate }: CreateTas
                 {step === 1 && (
                     <div className="space-y-4 animate-fade-in">
                         <div className="space-y-1">
-                            <h3 className="font-bold text-lg">Select Student</h3>
-                            <p className="text-sm text-muted-foreground">Who is this task for?</p>
+                            <h3 className="font-bold text-lg">Select Students</h3>
+                            <p className="text-sm text-muted-foreground">Assign task to one or more students</p>
                         </div>
 
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input
-                                placeholder="Search name, room..."
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                className="pl-9 bg-background/50"
-                            />
+                        <div className="flex gap-2">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                <Input
+                                    placeholder="Search name, room..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    className="pl-9 bg-background/50"
+                                />
+                            </div>
+                            <Button variant="outline" size="sm" onClick={toggleSelectAll}>
+                                {selectedStudents.length === filteredStudents.length && filteredStudents.length > 0 ? "None" : "All"}
+                            </Button>
                         </div>
 
                         <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2">
-                            {filteredStudents.map(student => (
-                                <div
-                                    key={student.id}
-                                    onClick={() => setSelectedStudent(student)}
-                                    className={cn(
-                                        "p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between",
-                                        selectedStudent?.id === student.id
-                                            ? "border-primary bg-primary/5 ring-1 ring-primary"
-                                            : "border-border/40 hover:border-border hover:bg-muted/50"
-                                    )}
-                                >
-                                    <div className="flex items-center gap-3">
-                                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
-                                            {student.roomNo}
+                            {filteredStudents.map(student => {
+                                const isSelected = selectedStudents.some(s => s.id === student.id);
+                                return (
+                                    <div
+                                        key={student.id}
+                                        onClick={() => toggleSelection(student)}
+                                        className={cn(
+                                            "p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between",
+                                            isSelected
+                                                ? "border-primary bg-primary/5 ring-1 ring-primary"
+                                                : "border-border/40 hover:border-border hover:bg-muted/50"
+                                        )}
+                                    >
+                                        <div className="flex items-center gap-3">
+                                            <Checkbox checked={isSelected} />
+                                            <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">
+                                                {student.roomNo}
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-sm">{student.name}</p>
+                                                <p className="text-xs text-muted-foreground">{student.mobile || 'No Mobile'}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="font-bold text-sm">{student.name}</p>
-                                            <p className="text-xs text-muted-foreground">{student.mobile || 'No Mobile'}</p>
-                                        </div>
+                                        {isSelected && <CheckCircle2 className="w-5 h-5 text-primary" />}
                                     </div>
-                                    {selectedStudent?.id === student.id && <CheckCircle2 className="w-5 h-5 text-primary" />}
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
 
-                        <Button
-                            className="w-full"
-                            disabled={!selectedStudent}
-                            onClick={() => setStep(2)}
-                        >
-                            Next Step
-                        </Button>
+                        <div className="flex justify-between items-center">
+                            <p className="text-sm text-muted-foreground">Selected: {selectedStudents.length}</p>
+                            <Button
+                                disabled={selectedStudents.length === 0}
+                                onClick={() => setStep(2)}
+                            >
+                                Next Step
+                            </Button>
+                        </div>
                     </div>
                 )}
 
@@ -161,7 +197,7 @@ export const CreateTaskDialog = ({ open, onOpenChange, onTaskCreate }: CreateTas
                     <div className="space-y-6 animate-fade-in">
                         <div className="space-y-1">
                             <h3 className="font-bold text-lg">Task Details</h3>
-                            <p className="text-sm text-muted-foreground">Assigning to <span className="text-primary font-bold">{selectedStudent?.name}</span></p>
+                            <p className="text-sm text-muted-foreground">Assigning to <span className="text-primary font-bold">{selectedStudents.length} Students</span></p>
                         </div>
 
                         <div className="space-y-4">

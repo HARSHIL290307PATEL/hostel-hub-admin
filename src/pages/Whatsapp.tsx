@@ -65,7 +65,9 @@ export default function Whatsapp() {
 
             try {
                 // Direct Call to QR API (No separate status check)
-                const qrRes = await fetch(`${API_BASE}/api/qr`);
+                const qrRes = await fetch(`${API_BASE}/api/qr`, {
+                    headers: { "ngrok-skip-browser-warning": "true" }
+                });
                 const qrData = await qrRes.json();
 
                 if (qrData.success && qrData.message === "Already connected") {

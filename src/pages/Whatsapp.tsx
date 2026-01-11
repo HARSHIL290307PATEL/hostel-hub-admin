@@ -40,8 +40,8 @@ export default function Whatsapp() {
     const [showAlumni, setShowAlumni] = useState(false);
 
     useEffect(() => {
-        const init = async () => {
-            // 1. Fetch Students & Categories
+        // 1. Fetch Data ONCE on mount
+        const fetchData = async () => {
             try {
                 const [studentsData, categoriesData] = await Promise.all([
                     getStudents(),
@@ -52,8 +52,17 @@ export default function Whatsapp() {
             } catch (error) {
                 console.error("Failed to load data", error);
             }
+        };
 
-            // 2. Check WhatsApp Status
+        fetchData();
+
+        // 2. Poll for Status & QR
+        let timeoutId: NodeJS.Timeout;
+        let isMounted = true;
+
+        const checkStatus = async () => {
+            if (!isMounted) return;
+
             try {
                 const statusRes = await fetch(`${API_BASE}/api/status`);
                 const statusData = await statusRes.json();
@@ -62,9 +71,11 @@ export default function Whatsapp() {
                     setConnected(true);
                     setQr(null);
                     setLoading(false);
+                    // Slow poll when connected
+                    timeoutId = setTimeout(checkStatus, 5000);
                 } else {
                     setConnected(false);
-                    // Poll for QR
+                    // Fetch QR if not connected
                     const qrRes = await fetch(`${API_BASE}/api/qr`);
                     const qrData = await qrRes.json();
 
@@ -74,34 +85,23 @@ export default function Whatsapp() {
                         setConnected(true);
                     }
                     setLoading(false);
+                    // Poll every 30 seconds as requested
+                    timeoutId = setTimeout(checkStatus, 30000);
                 }
             } catch (error) {
                 console.error("Connection Error:", error);
                 setLoading(false);
+                // Retry after delay on error
+                timeoutId = setTimeout(checkStatus, 3000);
             }
         };
 
-        const interval = setInterval(init, 5000); // Poll every 5s for status (and refresh data?)
-        // Ideally we shouldn't refresh data every 5s but for now let's keep it simple or separate.
-        // The original code refreshed everything every 5s because init was in interval. 
-        // Let's keep it that way for sync, but maybe opt-out if expensive.
-        // Actually, fetching students every 5s is heavy. Let's split it.
+        checkStatus();
 
-        init();
-
-        // Only poll status every 5s
-        const statusInterval = setInterval(async () => {
-            try {
-                const statusRes = await fetch(`${API_BASE}/api/status`);
-                const statusData = await statusRes.json();
-                setConnected(statusData.connected);
-                if (!statusData.connected) {
-                    // refresh QR logic if needed, but usually once is enough unless expired
-                }
-            } catch (e) { console.error(e); }
-        }, 5000);
-
-        return () => clearInterval(statusInterval);
+        return () => {
+            isMounted = false;
+            clearTimeout(timeoutId);
+        };
     }, []);
 
     // Filter Students

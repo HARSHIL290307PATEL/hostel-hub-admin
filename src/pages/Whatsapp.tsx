@@ -64,35 +64,28 @@ export default function Whatsapp() {
             if (!isMounted) return;
 
             try {
-                const statusRes = await fetch(`${API_BASE}/api/status`);
-                const statusData = await statusRes.json();
+                // Direct Call to QR API (No separate status check)
+                const qrRes = await fetch(`${API_BASE}/api/qr`);
+                const qrData = await qrRes.json();
 
-                if (statusData.connected) {
+                if (qrData.success && qrData.message === "Already connected") {
                     setConnected(true);
                     setQr(null);
                     setLoading(false);
-                    // Slow poll when connected
-                    timeoutId = setTimeout(checkStatus, 5000);
-                } else {
+                    timeoutId = setTimeout(checkStatus, 10000); // Check again in 10s
+                } else if (qrData.success && qrData.qr) {
                     setConnected(false);
-                    // Fetch QR if not connected
-                    const qrRes = await fetch(`${API_BASE}/api/qr`);
-                    const qrData = await qrRes.json();
-
-                    if (qrData.success && qrData.qr) {
-                        setQr(qrData.qr);
-                    } else if (qrData.success && qrData.message === "Already connected") {
-                        setConnected(true);
-                    }
+                    setQr(qrData.qr);
                     setLoading(false);
-                    // Poll every 30 seconds as requested
-                    timeoutId = setTimeout(checkStatus, 30000);
+                    timeoutId = setTimeout(checkStatus, 3000); // Refresh QR every 3s
+                } else {
+                    setLoading(false);
+                    timeoutId = setTimeout(checkStatus, 3000);
                 }
             } catch (error) {
                 console.error("Connection Error:", error);
                 setLoading(false);
-                // Retry after delay on error
-                timeoutId = setTimeout(checkStatus, 3000);
+                timeoutId = setTimeout(checkStatus, 5000);
             }
         };
 

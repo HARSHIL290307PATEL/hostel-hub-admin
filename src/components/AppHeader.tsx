@@ -77,32 +77,49 @@ export const AppHeader = ({ title }: AppHeaderProps) => {
                     Pavitra House
                   </SheetTitle>
                 </SheetHeader>
-                <div className="flex flex-col p-4 gap-2">
-                  {menuItems.map((item) => {
-                    const Icon = item.icon;
-                    const isActive = location.pathname === item.path;
-                    return (
-                      <Button
-                        key={item.path}
-                        variant="ghost"
-                        onClick={() => navigate(item.path)}
-                        className={cn(
-                          "w-full justify-start h-14 rounded-2xl gap-4 text-base font-bold transition-all duration-300",
-                          isActive
-                            ? "bg-primary text-primary-foreground shadow-soft-lg hover:bg-primary hover:text-primary-foreground scale-[1.02]"
-                            : "hover:bg-muted hover:text-foreground text-muted-foreground hover:shadow-sm"
-                        )}
-                      >
-                        <div className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center transition-colors",
-                          isActive ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
-                        )}>
-                          <Icon className="w-5 h-5" />
-                        </div>
-                        {item.label}
-                      </Button>
-                    );
-                  })}
+                <div className="flex flex-col p-4 gap-2 h-full overflow-hidden">
+                  <div className="flex-1 overflow-y-auto min-h-0 space-y-2">
+                    {menuItems.map((item) => {
+                      const Icon = item.icon;
+                      const isActive = location.pathname === item.path;
+                      return (
+                        <Button
+                          key={item.path}
+                          variant="ghost"
+                          onClick={() => navigate(item.path)}
+                          className={cn(
+                            "w-full justify-start h-14 rounded-2xl gap-4 text-base font-bold transition-all duration-300",
+                            isActive
+                              ? "bg-primary text-primary-foreground shadow-soft-lg hover:bg-primary hover:text-primary-foreground scale-[1.02]"
+                              : "hover:bg-muted hover:text-foreground text-muted-foreground hover:shadow-sm"
+                          )}
+                        >
+                          <div className={cn(
+                            "w-10 h-10 rounded-xl flex items-center justify-center transition-colors",
+                            isActive ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
+                          )}>
+                            <Icon className="w-5 h-5" />
+                          </div>
+                          {item.label}
+                        </Button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="pt-4 mt-auto border-t border-border/10 text-center space-y-2">
+                    <p className="text-xs text-muted-foreground font-mono">
+                      Last Updated: {new Date().toLocaleDateString()}
+                    </p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="w-full rounded-xl text-xs h-9 gap-2 bg-background/50"
+                      onClick={() => window.location.reload()}
+                    >
+                      <RefreshCw className="w-3 h-3" />
+                      Check for Updates
+                    </Button>
+                  </div>
                 </div>
               </SheetContent>
             </Sheet>

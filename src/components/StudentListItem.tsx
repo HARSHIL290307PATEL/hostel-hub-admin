@@ -64,11 +64,6 @@ export const StudentListItem = ({ student, onClick, hideContactActions = false }
               Alumni
             </span>
           )}
-          {tags.map(tag => (
-            <Badge key={tag.id} variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-primary/20 text-primary bg-primary/5">
-              {tag.name}
-            </Badge>
-          ))}
         </div>
         <div className="flex items-center gap-1.5 text-muted-foreground">
           <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5" />

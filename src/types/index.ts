@@ -14,6 +14,7 @@ export interface Student {
   createdAt: string;
   profileImage?: string;
   job?: string; // For alumni (or internships)
+  college?: string;
 }
 
 export interface Task {

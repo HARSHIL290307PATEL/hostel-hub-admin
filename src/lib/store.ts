@@ -42,6 +42,7 @@ const fromDbStudent = (db: any): Student => ({
     createdAt: db.created_at,
     profileImage: db.profile_image,
     job: db.job,
+    college: db.college,
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

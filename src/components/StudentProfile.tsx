@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Phone, Mail, Calendar, BookOpen, GraduationCap, Heart, Edit, UserMinus, User, Hash, Award, UserCheck, Briefcase } from 'lucide-react';
+import { Phone, Mail, Calendar, BookOpen, GraduationCap, Heart, Edit, UserMinus, User, Hash, Award, UserCheck, Briefcase, School } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Student } from '@/types';
 import { updateStudent } from '@/lib/store';
@@ -104,6 +104,7 @@ export const StudentProfile = ({ student, onClose, onUpdate, hideEditAction = fa
         {
             title: "Academic Information",
             items: [
+                { label: 'College', value: student.college, icon: School },
                 { label: 'Degree', value: student.degree, icon: BookOpen },
                 { label: 'Year', value: student.year, icon: GraduationCap },
                 { label: 'Result/CGPA', value: student.result, icon: Award },

@@ -56,6 +56,7 @@ const AddStudent = () => {
     interest: '',
     profileImage: '',
     job: '',
+    college: '',
     isAlumni: false,
   });
 
@@ -102,6 +103,7 @@ const AddStudent = () => {
               interest: student.interest || '',
               profileImage: student.profileImage || '',
               job: student.job || '',
+              college: student.college || '',
               isAlumni: Boolean(student.isAlumni),
             });
             // Reset dirty after loading initial data
@@ -239,6 +241,7 @@ const AddStudent = () => {
     { name: 'dob', label: 'Date of Birth', type: 'date', placeholder: '' },
     { name: 'mobile', label: 'Mobile Number', type: 'tel', placeholder: '+91 9876543210' },
     { name: 'email', label: 'Email Address', type: 'email', placeholder: 'email@example.com' },
+    { name: 'college', label: 'College', type: 'text', placeholder: 'XYZ University' },
     { name: 'degree', label: 'Degree', type: 'text', placeholder: 'B.Tech' },
     { name: 'year', label: 'Year', type: 'text', placeholder: '2nd Year' },
     { name: 'result', label: 'Result/CGPA', type: 'text', placeholder: '8.5 CGPA' },

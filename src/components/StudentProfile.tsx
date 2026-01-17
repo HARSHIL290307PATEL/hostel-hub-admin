@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Phone, Mail, Calendar, BookOpen, GraduationCap, Heart, Edit, UserMinus, User, Hash, Award } from 'lucide-react';
+import { Phone, Mail, Calendar, BookOpen, GraduationCap, Heart, Edit, UserMinus, User, Hash, Award, UserCheck, Briefcase } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Student } from '@/types';
 import { updateStudent } from '@/lib/store';
@@ -22,18 +22,58 @@ export const StudentProfile = ({ student, onClose, onUpdate, hideEditAction = fa
 
     const handleMoveToAlumni = async () => {
         try {
+            // Optimistic UI updates could go here if we had local state for it, 
+            // but we rely on the parent to refetch.
             await updateStudent(student.id, { isAlumni: true });
+
             toast({
                 title: 'Moved to Alumni',
                 description: `${student.name} has been moved to alumni list.`,
+                duration: 2000,
             });
-            onUpdate?.();
-            if (onClose) onClose();
-            else navigate(-1); // Go back if no onClose (e.g., full page)
+
+            // Ensure we wait for the parent to update before closing
+            if (onUpdate) {
+                await onUpdate();
+            }
+
+            if (onClose) {
+                onClose();
+            } else {
+                navigate(-1);
+            }
         } catch (error) {
             toast({
                 title: 'Error',
                 description: 'Failed to move student to alumni.',
+                variant: 'destructive',
+            });
+        }
+    };
+
+    const handleMoveToCurrent = async () => {
+        try {
+            await updateStudent(student.id, { isAlumni: false });
+
+            toast({
+                title: 'Moved to Current',
+                description: `${student.name} has been moved to current students list.`,
+                duration: 2000,
+            });
+
+            if (onUpdate) {
+                await onUpdate();
+            }
+
+            if (onClose) {
+                onClose();
+            } else {
+                navigate(-1);
+            }
+        } catch (error) {
+            toast({
+                title: 'Error',
+                description: 'Failed to move student to current list.',
                 variant: 'destructive',
             });
         }
@@ -69,7 +109,13 @@ export const StudentProfile = ({ student, onClose, onUpdate, hideEditAction = fa
                 { label: 'Result/CGPA', value: student.result, icon: Award },
                 { label: 'Interests', value: student.interest, icon: Heart },
             ]
-        }
+        },
+        ...(student.isAlumni ? [{
+            title: "Professional Information",
+            items: [
+                { label: 'Job / Current Status', value: student.job, icon: Briefcase }
+            ]
+        }] : [])
     ];
 
     const isCompact = hideEditAction;
@@ -119,13 +165,25 @@ export const StudentProfile = ({ student, onClose, onUpdate, hideEditAction = fa
                             </Button>
                         </>
                     ) : (
-                        <div className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-accent/20 text-accent text-xs sm:text-sm font-bold rounded-2xl border border-accent/10 uppercase tracking-widest w-full sm:w-auto">
-                            <GraduationCap className="w-5 h-5" />
-                            Alumni Member
+                        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+                            <div className="inline-flex items-center justify-center gap-2 px-6 py-2.5 bg-accent/20 text-accent text-xs sm:text-sm font-bold rounded-2xl border border-accent/10 uppercase tracking-widest w-full sm:w-auto">
+                                <GraduationCap className="w-5 h-5" />
+                                Alumni Member
+                            </div>
+                            <Button
+                                size="lg"
+                                className="rounded-2xl h-12 px-8 font-bold bg-primary hover:bg-primary/90 shadow-soft w-full sm:w-auto"
+                                onClick={handleMoveToCurrent}
+                            >
+                                <UserCheck className="w-4 h-4 mr-2" />
+                                Move to Current
+                            </Button>
                         </div>
                     )}
                 </div>
             </div>
+
+
 
             {/* Info Groups */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">

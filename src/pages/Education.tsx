@@ -8,7 +8,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { BookOpen, Video, Link as LinkIcon, Plus, Trash2, Send, Search, Users, Filter, Loader2 } from 'lucide-react';
+import { Label } from '@/components/ui/label';
+import { BookOpen, Video, Link as LinkIcon, Plus, Trash2, Send, Search, Users, Filter, Loader2, X } from 'lucide-react';
 import { toast } from 'sonner';
 import { getEducationResources, addEducationResource, deleteEducationResource, getStudents, getCategories, EducationResource, Karyakarta } from '@/lib/store';
 import { Student } from '@/types';
@@ -168,8 +169,8 @@ export default function Education() {
 
             <main className="flex-1 p-4 md:p-6 max-w-7xl mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-                {/* Left: Resources List (4 cols) */}
-                <div className="lg:col-span-4 space-y-4 flex flex-col h-[calc(100vh-8rem)]">
+                {/* Left: Resources List */}
+                <div className={`${selectedResourceId ? 'lg:col-span-4' : 'lg:col-span-12'} space-y-4 flex flex-col h-[calc(100vh-8rem)] transition-all duration-300 ease-in-out`}>
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-bold flex items-center gap-2">
                             <BookOpen className="w-5 h-5 text-primary" />
@@ -184,116 +185,200 @@ export default function Education() {
                                     <DialogTitle>Add Resource</DialogTitle>
                                 </DialogHeader>
                                 <div className="space-y-4 py-4">
-                                    <Input placeholder="Title" value={newTitle} onChange={e => setNewTitle(e.target.value)} />
-                                    <Select value={newType} onValueChange={(v: string) => setNewType(v as 'video' | 'link')}>
-                                        <SelectTrigger><SelectValue /></SelectTrigger>
-                                        <SelectContent>
-                                            <SelectItem value="link">Link</SelectItem>
-                                            <SelectItem value="video">Video</SelectItem>
-                                        </SelectContent>
-                                    </Select>
-                                    <Input placeholder="URL" value={newUrl} onChange={e => setNewUrl(e.target.value)} />
-                                    <Textarea placeholder="Description (Optional)" value={newDesc} onChange={e => setNewDesc(e.target.value)} />
-                                    <Button onClick={handleAdd} className="w-full">Save Resource</Button>
+                                    <div className="space-y-2">
+                                        <Label>Title</Label>
+                                        <Input placeholder="e.g., Chapter 1 Lecture" value={newTitle} onChange={e => setNewTitle(e.target.value)} />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Resource Type</Label>
+                                        <Select value={newType} onValueChange={(v: string) => setNewType(v as 'video' | 'link')}>
+                                            <SelectTrigger><SelectValue /></SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="link">Link / Document (Drive, PDF, etc.)</SelectItem>
+                                                <SelectItem value="video">Video (Google Drive / YouTube)</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Resource URL</Label>
+                                        <div className="relative">
+                                            <Input
+                                                placeholder={newType === 'video' ? "https://drive.google.com/file/d/..." : "https://..."}
+                                                value={newUrl}
+                                                onChange={e => setNewUrl(e.target.value)}
+                                                className="pl-8"
+                                            />
+                                            <LinkIcon className="w-4 h-4 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
+                                        </div>
+                                        <p className="text-[10px] text-muted-foreground bg-blue-50 text-blue-600 p-2 rounded-md mt-1 flex gap-2">
+                                            <span className="shrink-0">ℹ️</span>
+                                            <span>
+                                                For Google Drive links, ensure the file permission is set to <strong>"Anyone with the link"</strong> so students can access it.
+                                            </span>
+                                        </p>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Label>Description <span className="text-muted-foreground font-normal">(Optional)</span></Label>
+                                        <Textarea
+                                            placeholder="Add notes or details about this resource..."
+                                            value={newDesc}
+                                            onChange={e => setNewDesc(e.target.value)}
+                                            className="resize-none"
+                                            rows={3}
+                                        />
+                                    </div>
+
+                                    <Button onClick={handleAdd} className="w-full gap-2">
+                                        <Plus className="w-4 h-4" /> Save to Library
+                                    </Button>
                                 </div>
                             </DialogContent>
                         </Dialog>
                     </div>
 
-                    <div className="flex-1 overflow-y-auto space-y-3 pr-2">
+                    <div className="flex-1 overflow-y-auto space-y-6 pr-2">
                         {loading ? <div className="text-center py-10"><Loader2 className="animate-spin mx-auto" /></div> :
                             resources.length === 0 ? <p className="text-muted-foreground text-center py-10">No resources found</p> :
-                                resources.map(res => (
-                                    <div
-                                        key={res.id}
-                                        onClick={() => setSelectedResourceId(res.id)}
-                                        className={`p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md ${selectedResourceId === res.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'bg-white border-border/50'}`}
-                                    >
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex items-center gap-2">
-                                                {res.type === 'video' ? <Video className="w-4 h-4 text-blue-500" /> : <LinkIcon className="w-4 h-4 text-orange-500" />}
-                                                <h3 className="font-semibold line-clamp-1">{res.title}</h3>
-                                            </div>
-                                            <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:bg-destructive/10" onClick={(e) => handleDelete(res.id, e)}>
-                                                <Trash2 className="w-3 h-3" />
-                                            </Button>
+                                <>
+                                    {/* Video Section */}
+                                    {resources.some(r => r.type === 'video') && (
+                                        <div className="space-y-3">
+                                            <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-wider flex items-center gap-2 px-1 sticky top-0 bg-background/95 backdrop-blur z-10 py-2">
+                                                <Video className="w-3 h-3" /> Videos
+                                            </h3>
+                                            {resources.filter(r => r.type === 'video').map(res => (
+                                                <div
+                                                    key={res.id}
+                                                    onClick={() => setSelectedResourceId(res.id)}
+                                                    className={`p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md ${selectedResourceId === res.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'bg-white border-border/50'}`}
+                                                >
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex items-center gap-2">
+                                                            <Video className="w-4 h-4 text-blue-500" />
+                                                            <h3 className="font-semibold line-clamp-1">{res.title}</h3>
+                                                        </div>
+                                                        <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:bg-destructive/10" onClick={(e) => handleDelete(res.id, e)}>
+                                                            <Trash2 className="w-3 h-3" />
+                                                        </Button>
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{res.description || res.url}</p>
+                                                </div>
+                                            ))}
                                         </div>
-                                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{res.description || res.url}</p>
-                                    </div>
-                                ))}
+                                    )}
+
+                                    {/* Link Section */}
+                                    {resources.some(r => r.type === 'link') && (
+                                        <div className="space-y-3">
+                                            <h3 className="text-xs font-bold uppercase text-muted-foreground tracking-wider flex items-center gap-2 px-1 sticky top-0 bg-background/95 backdrop-blur z-10 py-2">
+                                                <LinkIcon className="w-3 h-3" /> Links & Docs
+                                            </h3>
+                                            {resources.filter(r => r.type === 'link').map(res => (
+                                                <div
+                                                    key={res.id}
+                                                    onClick={() => setSelectedResourceId(res.id)}
+                                                    className={`p-4 rounded-xl border cursor-pointer transition-all hover:shadow-md ${selectedResourceId === res.id ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'bg-white border-border/50'}`}
+                                                >
+                                                    <div className="flex items-start justify-between">
+                                                        <div className="flex items-center gap-2">
+                                                            <LinkIcon className="w-4 h-4 text-orange-500" />
+                                                            <h3 className="font-semibold line-clamp-1">{res.title}</h3>
+                                                        </div>
+                                                        <Button variant="ghost" size="icon" className="h-6 w-6 text-destructive hover:bg-destructive/10" onClick={(e) => handleDelete(res.id, e)}>
+                                                            <Trash2 className="w-3 h-3" />
+                                                        </Button>
+                                                    </div>
+                                                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{res.description || res.url}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </>
+                        }
                     </div>
                 </div>
 
-                {/* Right: Send Panel (8 cols) */}
-                <div className="lg:col-span-8 flex flex-col h-[calc(100vh-8rem)] glass-card rounded-2xl border-white/40 shadow-soft overflow-hidden">
-                    <div className="p-4 border-b bg-white/50 flex items-center justify-between">
-                        <div>
-                            <h2 className="font-bold text-lg">Send Resource</h2>
-                            <p className="text-xs text-muted-foreground">Select students to share the selected resource with</p>
-                        </div>
-                        {selectedResourceId ? (
-                            <Badge variant="default" className="bg-primary/10 text-primary hover:bg-primary/20">
-                                Selected: {resources.find(r => r.id === selectedResourceId)?.title}
-                            </Badge>
-                        ) : (
-                            <Badge variant="destructive" className="opacity-50">No Resource Selected</Badge>
-                        )}
-                    </div>
-
-                    {/* Filters */}
-                    <div className="p-4 flex gap-2 border-b bg-slate-50/50">
-                        <div className="relative flex-1">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                            <Input placeholder="Search students..." className="pl-9 h-9" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
-                        </div>
-                        <Select value={selectedGroupId || "all"} onValueChange={v => setSelectedGroupId(v === "all" ? null : v)}>
-                            <SelectTrigger className="w-[180px] h-9">
-                                <SelectValue placeholder="Filter Group" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All Students</SelectItem>
-                                {karyakartas.filter(k => k.type === 'main').map(g => (
-                                    <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
-                                ))}
-                            </SelectContent>
-                        </Select>
-                        <Button variant="outline" size="sm" onClick={toggleSelectAll} className="h-9">
-                            {selectedStudentIds.size === filteredStudents.length ? "Deselect All" : "Select All"}
-                        </Button>
-                    </div>
-
-                    {/* Student List */}
-                    <div className="flex-1 overflow-y-auto p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 content-start">
-                        {filteredStudents.map(student => (
-                            <div
-                                key={student.id}
-                                onClick={() => toggleSelection(student.id)}
-                                className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${selectedStudentIds.has(student.id) ? "bg-primary/5 border-primary" : "bg-white border-transparent hover:bg-slate-50"}`}
-                            >
-                                <Checkbox checked={selectedStudentIds.has(student.id)} />
-                                <div className="flex-1 min-w-0">
-                                    <p className="font-medium text-sm truncate">{student.name}</p>
-                                    <p className="text-xs text-muted-foreground">Room: {student.roomNo}</p>
-                                </div>
+                {/* Right: Send Panel */}
+                {selectedResourceId && (
+                    <div className="lg:col-span-8 flex flex-col h-[calc(100vh-8rem)] glass-card rounded-2xl border-white/40 shadow-soft overflow-hidden animate-in slide-in-from-right-8 duration-300">
+                        <div className="p-4 border-b bg-white/50 flex items-center justify-between">
+                            <div>
+                                <h2 className="font-bold text-lg">Send Resource</h2>
+                                <p className="text-xs text-muted-foreground">Select students to share the selected resource with</p>
                             </div>
-                        ))}
-                    </div>
+                            <div className="flex items-center gap-2">
+                                <Badge variant="default" className="bg-primary/10 text-primary hover:bg-primary/20">
+                                    Selected: {resources.find(r => r.id === selectedResourceId)?.title}
+                                </Badge>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="h-8 w-8 rounded-full hover:bg-destructive/10 hover:text-destructive"
+                                    onClick={() => setSelectedResourceId(null)}
+                                >
+                                    <X className="w-4 h-4" />
+                                </Button>
+                            </div>
+                        </div>
 
-                    {/* Footer Send Action */}
-                    <div className="p-4 border-t bg-white flex justify-between items-center">
-                        <p className="text-sm font-medium text-muted-foreground">
-                            {selectedStudentIds.size} students selected
-                        </p>
-                        <Button
-                            onClick={handleSend}
-                            disabled={sending || !selectedResourceId || selectedStudentIds.size === 0}
-                            className="gap-2 shadow-lg hover:shadow-xl transition-all"
-                        >
-                            {sending ? <Loader2 className="animate-spin w-4 h-4" /> : <Send className="w-4 h-4" />}
-                            Send via WhatsApp
-                        </Button>
+                        {/* Filters */}
+                        <div className="p-4 flex gap-2 border-b bg-slate-50/50">
+                            <div className="relative flex-1">
+                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                <Input placeholder="Search students..." className="pl-9 h-9" value={searchQuery} onChange={e => setSearchQuery(e.target.value)} />
+                            </div>
+                            <Select value={selectedGroupId || "all"} onValueChange={v => setSelectedGroupId(v === "all" ? null : v)}>
+                                <SelectTrigger className="w-[180px] h-9">
+                                    <SelectValue placeholder="Filter Group" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All Students</SelectItem>
+                                    {karyakartas.filter(k => k.type === 'main').map(g => (
+                                        <SelectItem key={g.id} value={g.id}>{g.name}</SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                            <Button variant="outline" size="sm" onClick={toggleSelectAll} className="h-9">
+                                {selectedStudentIds.size === filteredStudents.length ? "Deselect All" : "Select All"}
+                            </Button>
+                        </div>
+
+                        {/* Student List */}
+                        <div className="flex-1 overflow-y-auto p-4 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-3 content-start">
+                            {filteredStudents.map(student => (
+                                <div
+                                    key={student.id}
+                                    onClick={() => toggleSelection(student.id)}
+                                    className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${selectedStudentIds.has(student.id) ? "bg-primary/5 border-primary" : "bg-white border-transparent hover:bg-slate-50"}`}
+                                >
+                                    <Checkbox checked={selectedStudentIds.has(student.id)} />
+                                    <div className="flex-1 min-w-0">
+                                        <p className="font-medium text-sm truncate">{student.name}</p>
+                                        <p className="text-xs text-muted-foreground">Room: {student.roomNo}</p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+
+                        {/* Footer Send Action */}
+                        <div className="p-4 border-t bg-white flex justify-between items-center">
+                            <p className="text-sm font-medium text-muted-foreground">
+                                {selectedStudentIds.size} students selected
+                            </p>
+                            <Button
+                                onClick={handleSend}
+                                disabled={sending || !selectedResourceId || selectedStudentIds.size === 0}
+                                className="gap-2 shadow-lg hover:shadow-xl transition-all"
+                            >
+                                {sending ? <Loader2 className="animate-spin w-4 h-4" /> : <Send className="w-4 h-4" />}
+                                Send via WhatsApp
+                            </Button>
+                        </div>
                     </div>
-                </div>
+                )}
             </main>
         </div>
     );

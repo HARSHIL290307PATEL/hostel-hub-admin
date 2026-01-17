@@ -55,6 +55,8 @@ const AddStudent = () => {
     result: '',
     interest: '',
     profileImage: '',
+    job: '',
+    isAlumni: false,
   });
 
   const [loading, setLoading] = useState(false);
@@ -99,6 +101,8 @@ const AddStudent = () => {
               result: student.result || '',
               interest: student.interest || '',
               profileImage: student.profileImage || '',
+              job: student.job || '',
+              isAlumni: Boolean(student.isAlumni),
             });
             // Reset dirty after loading initial data
             setIsDirty(false);
@@ -239,6 +243,7 @@ const AddStudent = () => {
     { name: 'year', label: 'Year', type: 'text', placeholder: '2nd Year' },
     { name: 'result', label: 'Result/CGPA', type: 'text', placeholder: '8.5 CGPA' },
     { name: 'interest', label: 'Interests', type: 'text', placeholder: 'Sports, Music' },
+    { name: 'job', label: 'Job / Work (Alumni)', type: 'text', placeholder: 'Software Engineer @ Google' },
   ];
 
   return (
@@ -303,60 +308,75 @@ const AddStudent = () => {
 
         <form onSubmit={handleSubmit} className="space-y-8">
           <div className="bg-white border border-border/50 rounded-3xl shadow-soft p-4 sm:p-6 md:p-8 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4 sm:gap-y-6">
-            {fields.map((field, index) => (
-              <div
-                key={field.name}
-                className="space-y-1 sm:space-y-2 animate-slide-in"
-                style={{ animationDelay: `${index * 30}ms` }}
-              >
-                <Label htmlFor={field.name} className="text-xs sm:text-sm font-bold text-foreground/80 ml-1">
-                  {field.label}
-                </Label>
-                {field.name === 'dob' ? (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant={"outline"}
-                        className={cn(
-                          "w-full h-11 sm:h-12 justify-start text-left font-normal bg-background/50 border-border/50 rounded-xl text-xs sm:text-sm",
-                          !formData[field.name as keyof typeof formData] && "text-muted-foreground"
-                        )}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {formData[field.name as keyof typeof formData] ? (
-                          format(new Date(formData[field.name as keyof typeof formData]), "PPP")
-                        ) : (
-                          <span>Pick a date</span>
-                        )}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[calc(100vw-2rem)] sm:w-auto p-0" align="start">
-                      <ScrollDatePicker
-                        date={formData[field.name as keyof typeof formData] ? new Date(formData[field.name as keyof typeof formData]) : undefined}
-                        onDateChange={(date) => {
-                          setFormData(prev => ({
-                            ...prev,
-                            [field.name]: format(date, 'yyyy-MM-dd')
-                          }));
-                        }}
-                        className="w-full sm:w-[320px]"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                ) : (
-                  <Input
-                    id={field.name}
-                    name={field.name}
-                    type={field.type}
-                    placeholder={field.placeholder}
-                    value={formData[field.name as keyof typeof formData]}
-                    onChange={handleChange}
-                    className="h-11 sm:h-12 bg-background/50 border-border/50 focus:border-primary focus:ring-primary/20 rounded-xl transition-all font-medium text-xs sm:text-sm"
-                    required
-                  />
-                )}
-              </div>
-            ))}
+            {fields
+              .filter(field => field.name !== 'job' || formData.isAlumni)
+              .map((field, index) => (
+                <div
+                  key={field.name}
+                  className="space-y-1 sm:space-y-2 animate-slide-in"
+                  style={{ animationDelay: `${index * 30}ms` }}
+                >
+                  <Label htmlFor={field.name} className="text-xs sm:text-sm font-bold text-foreground/80 ml-1">
+                    {field.label}
+                  </Label>
+                  {field.name === 'dob' ? (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant={"outline"}
+                          className={cn(
+                            "w-full h-11 sm:h-12 justify-start text-left font-normal bg-background/50 border-border/50 rounded-xl text-xs sm:text-sm",
+                            !formData[field.name as keyof typeof formData] && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {formData[field.name as keyof typeof formData] ? (
+                            format(new Date(formData[field.name as keyof typeof formData] as string), "PPP")
+                          ) : (
+                            <span>Pick a date</span>
+                          )}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-[calc(100vw-2rem)] sm:w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={formData[field.name as keyof typeof formData] ? new Date(formData[field.name as keyof typeof formData] as string) : undefined}
+                          onSelect={(date) => {
+                            if (date) {
+                              const today = new Date();
+                              let age = today.getFullYear() - date.getFullYear();
+                              const monthDiff = today.getMonth() - date.getMonth();
+
+                              if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < date.getDate())) {
+                                age--;
+                              }
+
+                              setFormData(prev => ({
+                                ...prev,
+                                [field.name]: format(date, 'yyyy-MM-dd'),
+                                age: age.toString()
+                              }));
+                            }
+                          }}
+                          initialFocus
+                          className="p-3 pointer-events-auto"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  ) : (
+                    <Input
+                      id={field.name}
+                      name={field.name}
+                      type={field.type}
+                      placeholder={field.placeholder}
+                      value={formData[field.name as keyof typeof formData] as string}
+                      onChange={handleChange}
+                      className="h-11 sm:h-12 bg-background/50 border-border/50 focus:border-primary focus:ring-primary/20 rounded-xl transition-all font-medium text-xs sm:text-sm"
+                      required={field.name !== 'job' && field.name !== 'interest' && field.name !== 'profileImage'}
+                    />
+                  )}
+                </div>
+              ))}
           </div>
 
           <Button
@@ -393,7 +413,6 @@ const AddStudent = () => {
                   result: '8.5',
                   interest: 'Coding',
                   isAlumni: false,
-
                   createdAt: new Date().toISOString()
                 }]}
                 onUpdate={async (newStudents) => {

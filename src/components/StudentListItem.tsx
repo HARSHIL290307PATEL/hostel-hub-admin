@@ -3,6 +3,9 @@ import { GraduationCap, Phone, MessageCircle } from 'lucide-react';
 import { Student } from '@/types';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { getCategories, Karyakarta } from '@/lib/store';
+import { Badge } from '@/components/ui/badge';
+import { useState, useEffect } from 'react';
 
 interface StudentListItemProps {
   student: Student;
@@ -11,6 +14,15 @@ interface StudentListItemProps {
 }
 
 export const StudentListItem = ({ student, onClick, hideContactActions = false }: StudentListItemProps) => {
+  const [tags, setTags] = useState<Karyakarta[]>([]);
+
+  useEffect(() => {
+    getCategories().then(cats => {
+      const studentTags = cats.filter(c => c.studentIds.includes(student.id));
+      setTags(studentTags);
+    });
+  }, [student.id]);
+
   const handleCall = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!student.mobile) return;
@@ -33,18 +45,14 @@ export const StudentListItem = ({ student, onClick, hideContactActions = false }
       className="w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-5 glass-card rounded-2xl shadow-soft transition-all duration-300 hover:shadow-soft-lg hover:scale-[1.01] active:scale-[0.99] animate-fade-in text-left cursor-pointer group"
     >
       <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl overflow-hidden shadow-soft group-hover:shadow-soft-lg transition-all shrink-0">
-        {student.profileImage ? (
-          <img src={student.profileImage} alt={student.name} className="w-full h-full object-cover" />
-        ) : (
-          <div className="w-full h-full gradient-primary flex flex-col items-center justify-center">
-            <span className="text-white font-bold text-base sm:text-lg leading-none">
-              {student.roomNo}
-            </span>
-            <span className="text-white/80 font-bold text-[8px] sm:text-[10px] uppercase tracking-tighter mt-0.5">
-              Room
-            </span>
-          </div>
-        )}
+        <img
+          src={student.profileImage || '/placeholder.svg'}
+          alt={student.name}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = '/placeholder.svg';
+          }}
+        />
       </div>
 
       <div className="flex-1 min-w-0">
@@ -56,6 +64,11 @@ export const StudentListItem = ({ student, onClick, hideContactActions = false }
               Alumni
             </span>
           )}
+          {tags.map(tag => (
+            <Badge key={tag.id} variant="outline" className="text-[10px] px-1.5 py-0 h-4 border-primary/20 text-primary bg-primary/5">
+              {tag.name}
+            </Badge>
+          ))}
         </div>
         <div className="flex items-center gap-1.5 text-muted-foreground">
           <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
@@ -85,6 +98,6 @@ export const StudentListItem = ({ student, onClick, hideContactActions = false }
           </div>
         )}
       </div>
-    </div>
+    </div >
   );
 };

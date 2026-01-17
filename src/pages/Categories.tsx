@@ -245,8 +245,8 @@ const Categories = () => {
                     {/* Main Karyakarta Header */}
                     <div className="p-6 bg-gray-50/50 flex items-center justify-between group cursor-pointer" onClick={() => setSelectedKaryakartaId(main.id)}>
                       <div className="flex items-center gap-4">
-                        <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary font-bold text-xl">
-                          {main.name.charAt(0)}
+                        <div className="w-12 h-12 bg-primary/10 rounded-2xl flex items-center justify-center text-primary">
+                          <Users className="w-6 h-6" />
                         </div>
                         <div>
                           <h3 className="text-xl font-bold text-foreground">{main.name}</h3>

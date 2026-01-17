@@ -2,11 +2,13 @@ import { LogOut, Menu, UserPlus, RefreshCw, CheckSquare, FolderOpen, LayoutDashb
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/contexts/AuthContext';
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+
 import { useNavigate, useLocation } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useEffect, useState } from 'react';
@@ -22,13 +24,12 @@ export const AppHeader = ({ title }: AppHeaderProps) => {
 
   const menuItems = [
     { path: '/dashboard', label: 'All Student', icon: LayoutDashboard },
-
     { path: '/birthdays', label: 'Birthdays', icon: Cake },
     { path: '/update', label: 'Update', icon: RefreshCw },
     { path: '/tasks', label: 'Tasks', icon: CheckSquare },
-    { path: '/categories', label: 'Categories', icon: FolderOpen },
+    { path: '/categories', label: 'Categories', icon: Users },
     { path: '/education', label: 'Education', icon: BookOpen },
-    { path: '/whatsapp', label: 'WhatsApp', icon: MessageCircle },
+    { path: '/whatsapp', label: 'Message', icon: MessageCircle },
   ];
 
   const filteredMenuItems = menuItems.filter(item => item.path !== location.pathname);
@@ -36,26 +37,21 @@ export const AppHeader = ({ title }: AppHeaderProps) => {
 
   const handleBack = () => {
     const path = location.pathname;
-
     // Edit Page -> Detail Page
     if (path.includes('/edit')) {
       navigate(path.replace('/edit', ''));
       return;
     }
-
     // Add Page -> Student List
     if (path.includes('/students/add')) {
       navigate('/students');
       return;
     }
-
     // Detail Page -> Student List
-    // Matches /students/xyz but not /students/add or just /students
     if (path.match(/^\/students\/[^/]+$/)) {
       navigate('/students');
       return;
     }
-
     // Default -> Dashboard
     navigate('/dashboard');
   };
@@ -65,8 +61,8 @@ export const AppHeader = ({ title }: AppHeaderProps) => {
       <div className="flex items-center justify-between h-16 px-4 max-w-7xl mx-auto relative">
         <div className="flex items-center">
           {isDashboard ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
+            <Sheet>
+              <SheetTrigger asChild>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -74,23 +70,42 @@ export const AppHeader = ({ title }: AppHeaderProps) => {
                 >
                   <Menu className="w-6 h-6" />
                 </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-56 p-2 glass-card shadow-soft-lg animate-scale-in border-white/40">
-                {filteredMenuItems.map((item) => {
-                  const Icon = item.icon;
-                  return (
-                    <DropdownMenuItem
-                      key={item.path}
-                      onClick={() => navigate(item.path)}
-                      className="flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors hover:bg-primary/10"
-                    >
-                      <Icon className="h-4 w-4" />
-                      <span className="font-medium">{item.label}</span>
-                    </DropdownMenuItem>
-                  );
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[300px] sm:w-[400px] p-0 border-r border-border/40 shadow-soft-xl bg-white [&>button]:hidden">
+                <SheetHeader className="p-6 border-b border-border/10">
+                  <SheetTitle className="text-left text-2xl font-black text-foreground">
+                    Pavitra House
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="flex flex-col p-4 gap-2">
+                  {menuItems.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = location.pathname === item.path;
+                    return (
+                      <Button
+                        key={item.path}
+                        variant="ghost"
+                        onClick={() => navigate(item.path)}
+                        className={cn(
+                          "w-full justify-start h-14 rounded-2xl gap-4 text-base font-bold transition-all duration-300",
+                          isActive
+                            ? "bg-primary text-primary-foreground shadow-soft-lg hover:bg-primary hover:text-primary-foreground scale-[1.02]"
+                            : "hover:bg-muted hover:text-foreground text-muted-foreground hover:shadow-sm"
+                        )}
+                      >
+                        <div className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center transition-colors",
+                          isActive ? "bg-white/20 text-white" : "bg-primary/10 text-primary"
+                        )}>
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        {item.label}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </SheetContent>
+            </Sheet>
           ) : (
             <Button
               variant="ghost"
@@ -106,14 +121,14 @@ export const AppHeader = ({ title }: AppHeaderProps) => {
 
 
         {/* Centered Logo */}
-        <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center">
+        < div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center justify-center" >
           <img
             src="/header-logo.png"
             alt="Logo"
             className="h-14 sm:h-16 w-auto object-contain cursor-pointer transition-transform hover:scale-110 active:scale-90 mix-blend-multiply"
             onClick={() => navigate('/dashboard')}
           />
-        </div>
+        </div >
 
         <Button
           variant="ghost"

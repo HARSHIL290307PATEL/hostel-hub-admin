@@ -119,5 +119,9 @@ BEGIN
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'students' AND column_name = 'profile_image') THEN
         ALTER TABLE students ADD COLUMN profile_image TEXT;
     END IF;
+
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name = 'students' AND column_name = 'job') THEN
+        ALTER TABLE students ADD COLUMN job TEXT;
+    END IF;
 END $$;
 

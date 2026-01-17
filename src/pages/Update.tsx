@@ -18,6 +18,8 @@ const Update = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [students, setStudents] = useState<Student[]>([]);
 
+  const [showAlumni, setShowAlumni] = useState(false);
+
   useEffect(() => {
     fetchStudents();
   }, []);
@@ -32,6 +34,11 @@ const Update = () => {
   };
 
   const filteredStudents = students.filter(student => {
+    // 1. Filter by Current/Alumni
+    const matchesType = showAlumni ? student.isAlumni : !student.isAlumni;
+    if (!matchesType) return false;
+
+    // 2. Filter by Search
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
@@ -103,6 +110,32 @@ const Update = () => {
 
           <TabsContent value="single" className="space-y-6">
 
+            {/* Toggle Current / Alumni */}
+            <div className="flex p-1 bg-muted/50 rounded-xl border border-border/50 max-w-sm mx-auto mb-6">
+              <button
+                onClick={() => setShowAlumni(false)}
+                className={cn(
+                  "flex-1 py-2 text-sm font-bold rounded-lg transition-all",
+                  !showAlumni
+                    ? "bg-white text-primary shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Current Students
+              </button>
+              <button
+                onClick={() => setShowAlumni(true)}
+                className={cn(
+                  "flex-1 py-2 text-sm font-bold rounded-lg transition-all",
+                  showAlumni
+                    ? "bg-white text-primary shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                Alumni
+              </button>
+            </div>
+
             <div className="space-y-4">
               {filteredStudents.length > 0 ? (
                 filteredStudents.map((student, index) => (
@@ -136,7 +169,7 @@ const Update = () => {
                   </div>
                   <div>
                     <h3 className="text-xl font-bold text-foreground">No students found</h3>
-                    <p className="text-muted-foreground mt-1">Try a different search query</p>
+                    <p className="text-muted-foreground mt-1">Try a different search query or switch tabs</p>
                   </div>
                 </div>
               )}

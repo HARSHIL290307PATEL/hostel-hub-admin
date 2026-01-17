@@ -61,7 +61,13 @@ const router = createBrowserRouter(
       {/* 404 */}
       <Route path="*" element={<NotFound />} />
     </Route>
-  )
+  ),
+  {
+    future: {
+      // @ts-ignore
+      v7_startTransition: true,
+    }
+  }
 );
 
 // Wrapper components needed because we can't use hooks inside the definition directly easily without extraction or layout

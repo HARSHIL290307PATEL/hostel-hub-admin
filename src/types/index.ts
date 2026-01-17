@@ -13,6 +13,7 @@ export interface Student {
   isAlumni: boolean;
   createdAt: string;
   profileImage?: string;
+  job?: string; // For alumni (or internships)
 }
 
 export interface Task {

@@ -20,6 +20,7 @@ interface CreateTaskDialogProps {
 
 export const CreateTaskDialog = ({ open, onOpenChange, onTaskCreate }: CreateTaskDialogProps) => {
     const [step, setStep] = useState(1);
+    const [showAlumni, setShowAlumni] = useState(false);
     const [students, setStudents] = useState<Student[]>([]);
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedStudents, setSelectedStudents] = useState<Student[]>([]);
@@ -42,7 +43,7 @@ export const CreateTaskDialog = ({ open, onOpenChange, onTaskCreate }: CreateTas
     }, [open]);
 
     const filteredStudents = students.filter(s =>
-        !s.isAlumni && (
+        (showAlumni ? s.isAlumni : !s.isAlumni) && (
             (s.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
             (s.roomNo || '').toString().toLowerCase().includes(searchQuery.toLowerCase()) ||
             (s.mobile && s.mobile.toString().includes(searchQuery))
@@ -135,6 +136,24 @@ export const CreateTaskDialog = ({ open, onOpenChange, onTaskCreate }: CreateTas
                         <div className="space-y-1">
                             <h3 className="font-bold text-lg">Select Students</h3>
                             <p className="text-sm text-muted-foreground">Assign task to one or more students</p>
+                        </div>
+
+                        {/* Toggle Current / Alumni */}
+                        <div className="flex p-1 bg-muted/50 rounded-xl border border-border/50 mb-2">
+                            <button
+                                onClick={() => setShowAlumni(false)}
+                                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${!showAlumni ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                                    }`}
+                            >
+                                Current
+                            </button>
+                            <button
+                                onClick={() => setShowAlumni(true)}
+                                className={`flex-1 py-1.5 text-xs font-bold rounded-lg transition-all ${showAlumni ? "bg-white text-primary shadow-sm" : "text-muted-foreground hover:text-foreground"
+                                    }`}
+                            >
+                                Alumni
+                            </button>
                         </div>
 
                         <div className="flex gap-2">

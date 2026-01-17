@@ -10,12 +10,18 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    return localStorage.getItem('isAuthenticated') === 'true';
+  });
   const [adminName] = useState('Admin User');
 
   const login = (email: string, password: string): boolean => {
     // Hardcoded admin credentials validation
-    if (email === 'harshil2937patel@gmail.com' && password === '123456') {
+    if (
+      (email === 'harshil2937patel@gmail.com' && password === '123456') ||
+      (email === 'bhulkuanand36@gmail.com' && password === 'dasnadas')
+    ) {
+      localStorage.setItem('isAuthenticated', 'true');
       setIsAuthenticated(true);
       return true;
     }
@@ -23,6 +29,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = () => {
+    localStorage.removeItem('isAuthenticated');
     setIsAuthenticated(false);
   };
 

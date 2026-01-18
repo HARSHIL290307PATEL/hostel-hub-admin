@@ -99,8 +99,10 @@ export default function Education() {
 
     const filteredStudents = students.filter(s => {
         const matchesSearch = !s.isAlumni && (
-            s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            s.roomNo.toString().includes(searchQuery)
+            s.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            s.roomNo?.toString().includes(searchQuery) ||
+            s.mobile?.includes(searchQuery) ||
+            s.email?.toLowerCase().includes(searchQuery.toLowerCase())
         );
         if (!matchesSearch) return false;
 

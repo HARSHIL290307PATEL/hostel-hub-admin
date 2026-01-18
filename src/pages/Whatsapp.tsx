@@ -104,9 +104,10 @@ export default function Whatsapp() {
         // 1. Basic Filters (Alumni, Search)
         const matchesType = showAlumni ? s.isAlumni : !s.isAlumni;
         const matchesSearch = matchesType && (
-            s.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            s.roomNo.toString().includes(searchQuery) ||
-            (s.mobile && s.mobile.includes(searchQuery))
+            s.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            s.roomNo?.toString().includes(searchQuery) ||
+            s.mobile?.includes(searchQuery) ||
+            s.email?.toLowerCase().includes(searchQuery.toLowerCase())
         );
 
         if (!matchesSearch) return false;

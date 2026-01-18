@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Student } from '@/types';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { calculateAge } from '@/lib/dateUtils';
 
 interface BulkUpdateProps {
     students: Student[];
@@ -17,17 +18,31 @@ export const BulkUpdate = ({ students, onUpdate }: BulkUpdateProps) => {
         const workbook = new ExcelJS.Workbook();
         const worksheet = workbook.addWorksheet('Students');
 
+        // Exclude 'id' and 'createdAt' fields from export
+        const excludedFields = ['id', 'createdAt'];
+
         // Dynamically create columns from the first student object if available
         if (students.length > 0) {
-            worksheet.columns = Object.keys(students[0]).map((key) => ({
-                header: key,
-                key: key,
-                width: 20, // Set a default width for better readability
-            }));
+            worksheet.columns = Object.keys(students[0])
+                .filter((key) => !excludedFields.includes(key))
+                .map((key) => ({
+                    header: key,
+                    key: key,
+                    width: 20, // Set a default width for better readability
+                }));
         }
 
-        // Add rows
-        worksheet.addRows(students);
+        // Add rows with excluded fields removed
+        const rowsData = students.map(student => {
+            const row: any = {};
+            Object.keys(student).forEach(key => {
+                if (!excludedFields.includes(key)) {
+                    row[key] = student[key as keyof Student];
+                }
+            });
+            return row;
+        });
+        worksheet.addRows(rowsData);
 
         // Generate buffer
         const buffer = await workbook.xlsx.writeBuffer();
@@ -126,14 +141,21 @@ export const BulkUpdate = ({ students, onUpdate }: BulkUpdateProps) => {
                     return;
                 }
 
-                // Validate basic structure (check if 'id' exists in first row)
-                if (!('id' in data[0])) {
-                    toast.error("Invalid file format. Please use the downloaded template.");
-                    return;
-                }
+                // Auto-generate id, createdAt, and calculate age for each student
+                const processedData = data.map((student) => {
+                    // Calculate age from DOB if DOB is provided
+                    const age = student.dob ? calculateAge(student.dob) : (student.age || 0);
 
-                onUpdate(data as Student[]);
-                toast.success(`Successfully loaded ${data.length} students records`);
+                    return {
+                        ...student,
+                        id: crypto.randomUUID(), // Generate unique ID
+                        createdAt: new Date().toISOString(), // Set current timestamp
+                        age: age, // Auto-calculated age from DOB
+                    };
+                });
+
+                onUpdate(processedData as Student[]);
+                toast.success(`Successfully loaded ${processedData.length} students records`);
             } catch (error) {
                 console.error("Excel processing error:", error);
                 toast.error("Failed to process Excel file");
@@ -202,11 +224,11 @@ export const BulkUpdate = ({ students, onUpdate }: BulkUpdateProps) => {
                     <ul className="space-y-3 text-sm font-medium text-muted-foreground">
                         <li className="flex items-start gap-4">
                             <span className="w-6 h-6 rounded-lg glass border border-primary/20 flex items-center justify-center text-[10px] font-bold shrink-0 text-primary">01</span>
-                            <span>Do not modify the <strong className="text-foreground">ID</strong> column for existing student records.</span>
+                            <span><strong className="text-foreground">ID</strong> and <strong className="text-foreground">Creation Date</strong> are auto-generated - no need to include them.</span>
                         </li>
                         <li className="flex items-start gap-3">
                             <span className="w-6 h-6 rounded-lg glass border border-primary/20 flex items-center justify-center text-[10px] font-bold shrink-0 text-primary">02</span>
-                            <span>Add new entries by providing unique identifiers in the first column.</span>
+                            <span>Fill in all other student details in the downloaded template.</span>
                         </li>
                         <li className="flex items-start gap-3">
                             <span className="w-6 h-6 rounded-lg glass border border-primary/20 flex items-center justify-center text-[10px] font-bold shrink-0 text-primary">03</span>

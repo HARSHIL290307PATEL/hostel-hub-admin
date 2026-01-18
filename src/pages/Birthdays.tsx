@@ -1,12 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Cake, Sparkles, Send, Settings } from 'lucide-react';
+import { Cake, Sparkles, Send, Settings, Clock, Power } from 'lucide-react';
 import { AppHeader } from '@/components/AppHeader';
 import { Button } from '@/components/ui/button';
 import { getStudents, getSetting, updateSetting } from '@/lib/store';
 import { Student } from '@/types';
 import api from '@/lib/api';
 import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 const Birthdays = () => {
     const navigate = useNavigate();
@@ -14,6 +17,12 @@ const Birthdays = () => {
     const [messageTemplate, setMessageTemplate] = useState("Happy Birthday, {name}! 🎉🎂 Wishing you a fantastic day filled with joy and happiness!");
     const [isEditingTemplate, setIsEditingTemplate] = useState(false);
     const [tempTemplate, setTempTemplate] = useState("");
+
+    // Auto-send settings
+    const [autoSendEnabled, setAutoSendEnabled] = useState(false);
+    const [autoSendTime, setAutoSendTime] = useState("09:00"); // Default 9 AM
+    const [isEditingSettings, setIsEditingSettings] = useState(false);
+    const [lastSentDate, setLastSentDate] = useState<string | null>(null);
 
     useEffect(() => {
         const fetchStudents = async () => {
@@ -28,12 +37,42 @@ const Birthdays = () => {
     }, []);
 
     useEffect(() => {
-        const loadTemplate = async () => {
-            const saved = await getSetting('birthday_template');
-            if (saved) setMessageTemplate(saved);
+        const loadSettings = async () => {
+            const savedTemplate = await getSetting('birthday_template');
+            const savedAutoSend = await getSetting('birthday_auto_send');
+            const savedTime = await getSetting('birthday_auto_time');
+            const savedLastSent = await getSetting('birthday_last_sent');
+
+            if (savedTemplate) setMessageTemplate(savedTemplate);
+            if (savedAutoSend) setAutoSendEnabled(savedAutoSend === 'true');
+            if (savedTime) setAutoSendTime(savedTime);
+            if (savedLastSent) setLastSentDate(savedLastSent);
         };
-        loadTemplate();
+        loadSettings();
     }, []);
+
+    // Auto-send checker - runs every minute
+    useEffect(() => {
+        if (!autoSendEnabled) return;
+
+        const checkAndSend = async () => {
+            const now = new Date();
+            const currentTime = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            const currentDate = now.toISOString().split('T')[0];
+
+            // Check if it's time to send and we haven't sent today
+            if (currentTime === autoSendTime && lastSentDate !== currentDate) {
+                await sendBirthdayWishesToAll();
+                setLastSentDate(currentDate);
+                await updateSetting('birthday_last_sent', currentDate);
+            }
+        };
+
+        const interval = setInterval(checkAndSend, 60000); // Check every minute
+        checkAndSend(); // Check immediately
+
+        return () => clearInterval(interval);
+    }, [autoSendEnabled, autoSendTime, lastSentDate, students, messageTemplate]);
 
     // Filter students whose birthday is TODAY
     const birthdayStudents = students.filter(student => {
@@ -59,6 +98,49 @@ const Birthdays = () => {
         }
     };
 
+    const handleSaveSettings = async () => {
+        try {
+            await updateSetting('birthday_auto_send', String(autoSendEnabled));
+            await updateSetting('birthday_auto_time', autoSendTime);
+            setIsEditingSettings(false);
+            toast.success("Auto-send settings saved!");
+        } catch (error) {
+            toast.error("Failed to save settings");
+        }
+    };
+
+    const sendBirthdayWishesToAll = async () => {
+        if (birthdayStudents.length === 0) return;
+
+        let successCount = 0;
+        let failCount = 0;
+
+        for (const student of birthdayStudents) {
+            if (!student.mobile) {
+                failCount++;
+                continue;
+            }
+
+            try {
+                const message = messageTemplate.replace('{name}', student.name);
+                await api.post('/api/send', {
+                    number: student.mobile,
+                    message: message
+                });
+                successCount++;
+            } catch (error) {
+                failCount++;
+            }
+        }
+
+        if (successCount > 0) {
+            toast.success(`🎉 Sent ${successCount} birthday wishes automatically!`);
+        }
+        if (failCount > 0) {
+            toast.error(`Failed to send ${failCount} wishes`);
+        }
+    };
+
     return (
         <div className="min-h-screen pb-20 relative animate-fade-in">
             <AppHeader title="Hari-Saurabh Hostel" />
@@ -73,10 +155,98 @@ const Birthdays = () => {
                             Birthdays
                         </h2>
                         <p className="text-muted-foreground font-medium uppercase tracking-widest text-xs">Celebrate with your students today</p>
+                        {autoSendEnabled && (
+                            <div className="flex items-center gap-2 mt-2">
+                                <div className="flex items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/20 rounded-full">
+                                    <Power className="w-3 h-3 text-green-600 animate-pulse" />
+                                    <span className="text-xs font-bold text-green-600">Auto-send enabled at {autoSendTime}</span>
+                                </div>
+                            </div>
+                        )}
                     </div>
-
-
+                    <Button
+                        variant="outline"
+                        size="icon"
+                        className="relative z-10 w-10 h-10 rounded-full bg-white/50 backdrop-blur-sm border-primary/20 hover:bg-white hover:text-primary transition-all shadow-sm"
+                        onClick={() => setIsEditingSettings(true)}
+                    >
+                        <Clock className="w-5 h-5" />
+                    </Button>
                 </div>
+
+                {/* Auto-Send Settings Dialog */}
+                {isEditingSettings && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">
+                        <div className="bg-white rounded-3xl shadow-2xl w-full max-w-md p-6 space-y-6 animate-in zoom-in-95 duration-200">
+                            <div>
+                                <h3 className="text-xl font-bold flex items-center gap-2">
+                                    <Clock className="w-5 h-5 text-primary" />
+                                    Auto-Send Settings
+                                </h3>
+                                <p className="text-sm text-muted-foreground mt-1">
+                                    Automatically send birthday wishes at a scheduled time
+                                </p>
+                            </div>
+
+                            <div className="space-y-4">
+                                {/* Enable/Disable Toggle */}
+                                <div className="flex items-center justify-between p-4 rounded-xl bg-muted/30 border border-border/50">
+                                    <div className="space-y-0.5">
+                                        <Label className="text-sm font-bold">Enable Auto-Send</Label>
+                                        <p className="text-xs text-muted-foreground">Send wishes automatically every day</p>
+                                    </div>
+                                    <Switch
+                                        checked={autoSendEnabled}
+                                        onCheckedChange={setAutoSendEnabled}
+                                    />
+                                </div>
+
+                                {/* Time Picker */}
+                                <div className="space-y-2">
+                                    <Label className="text-sm font-bold">Send Time</Label>
+                                    <div className="relative">
+                                        <Clock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                                        <Input
+                                            type="time"
+                                            value={autoSendTime}
+                                            onChange={(e) => setAutoSendTime(e.target.value)}
+                                            className="pl-10 h-12 rounded-xl border-border/50 bg-white"
+                                            disabled={!autoSendEnabled}
+                                        />
+                                    </div>
+                                    <p className="text-xs text-muted-foreground">
+                                        Birthday wishes will be sent at this time every day
+                                    </p>
+                                </div>
+
+                                {/* Info Box */}
+                                {autoSendEnabled && (
+                                    <div className="p-3 rounded-xl bg-blue-50 border border-blue-200">
+                                        <p className="text-xs text-blue-600 font-medium">
+                                            ℹ️ Wishes will be sent automatically to all students with birthdays today at {autoSendTime}
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex gap-3">
+                                <Button
+                                    variant="outline"
+                                    className="flex-1 rounded-xl font-bold"
+                                    onClick={() => setIsEditingSettings(false)}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    className="flex-1 rounded-xl font-bold bg-primary text-white hover:bg-primary/90"
+                                    onClick={handleSaveSettings}
+                                >
+                                    Save Settings
+                                </Button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
                 {isEditingTemplate && (
                     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-in fade-in duration-200">

@@ -50,9 +50,10 @@ const Students = () => {
 
   const filteredStudents = students.filter(student => {
     const matchesSearch =
-      student.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      student.roomNo.includes(searchQuery) ||
-      student.mobile.includes(searchQuery);
+      student.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.roomNo?.includes(searchQuery) ||
+      student.mobile?.includes(searchQuery) ||
+      student.email?.toLowerCase().includes(searchQuery.toLowerCase());
 
     const matchesFilter = showAlumni ? student.isAlumni : !student.isAlumni;
 

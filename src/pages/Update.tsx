@@ -42,9 +42,11 @@ const Update = () => {
     if (!searchQuery) return true;
     const query = searchQuery.toLowerCase();
     return (
-      student.name.toLowerCase().includes(query) ||
-      student.id.toLowerCase().includes(query) ||
-      student.roomNo.toLowerCase().includes(query)
+      student.name?.toLowerCase().includes(query) ||
+      student.id?.toLowerCase().includes(query) ||
+      student.roomNo?.toLowerCase().includes(query) ||
+      student.mobile?.includes(query) ||
+      student.email?.toLowerCase().includes(query)
     );
   });
 

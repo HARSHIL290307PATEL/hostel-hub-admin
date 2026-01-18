@@ -1,13 +1,16 @@
-import { Calendar, Check, Clock, Tag } from 'lucide-react';
+import { Calendar, Check, Clock, Tag, Edit2, Trash2 } from 'lucide-react';
 import { Task } from '@/types';
 import { cn } from '@/lib/utils';
+import { Button } from '@/components/ui/button';
 
 interface TaskItemProps {
   task: Task;
   onToggle?: () => void;
+  onEdit?: () => void;
+  onDelete?: () => void;
 }
 
-export const TaskItem = ({ task, onToggle }: TaskItemProps) => {
+export const TaskItem = ({ task, onToggle, onEdit, onDelete }: TaskItemProps) => {
   const isPending = task.status === 'pending';
 
   return (
@@ -67,6 +70,33 @@ export const TaskItem = ({ task, onToggle }: TaskItemProps) => {
           {isPending ? 'Pending' : 'Completed'}
         </span>
       </div>
+
+      {/* Edit and Delete Buttons */}
+      <div className="flex items-center gap-2 shrink-0">
+        {onEdit && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onEdit}
+            className="w-9 h-9 rounded-xl hover:bg-blue-50 hover:text-blue-600 transition-all"
+            title="Edit task"
+          >
+            <Edit2 className="w-4 h-4" />
+          </Button>
+        )}
+        {onDelete && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={onDelete}
+            className="w-9 h-9 rounded-xl hover:bg-red-50 hover:text-red-600 transition-all"
+            title="Delete task"
+          >
+            <Trash2 className="w-4 h-4" />
+          </Button>
+        )}
+      </div>
     </div>
   );
 };
+

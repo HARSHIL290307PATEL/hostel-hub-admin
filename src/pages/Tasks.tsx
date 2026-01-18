@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { CreateTaskDialog } from '@/components/CreateTaskDialog';
 import { cn } from '@/lib/utils';
 import { useTaskNotifications } from '@/hooks/useTaskNotifications';
-import { getTasks, addTask, updateTask } from '@/lib/store';
+import { getTasks, addTask, updateTask, deleteTask } from '@/lib/store';
 import { toast } from 'sonner';
 
 const Tasks = () => {
@@ -69,11 +69,6 @@ const Tasks = () => {
   });
 
   const handleCreateTask = async (newTask: Task) => {
-    // Ensure we don't block UI too much, but ideally we wait for DB ID if we were rigorous.
-    // However, the ID generation in CreateTaskDialog currently uses Date.now(), 
-    // we should let Supabase handle IDs or stick with UUIDs.
-    // For now, let's assume `addTask` returns the DB object with real ID.
-
     try {
       const savedTask = await addTask(newTask);
       if (savedTask) {
@@ -81,6 +76,28 @@ const Tasks = () => {
       }
     } catch (e) {
       toast.error("Failed to save task to database");
+    }
+  };
+
+  const handleDeleteTask = async (taskId: string) => {
+    // Confirm deletion
+    if (!confirm('Are you sure you want to delete this task? This action cannot be undone.')) {
+      return;
+    }
+
+    // Optimistic UI update
+    const taskToDelete = tasks.find(t => t.id === taskId);
+    setTasks(prev => prev.filter(t => t.id !== taskId));
+
+    try {
+      await deleteTask(taskId);
+      toast.success('Task deleted successfully');
+    } catch (error) {
+      // Revert on error
+      if (taskToDelete) {
+        setTasks(prev => [taskToDelete, ...prev]);
+      }
+      toast.error('Failed to delete task');
     }
   };
 
@@ -141,6 +158,8 @@ const Tasks = () => {
                 <TaskItem
                   task={task}
                   onToggle={() => toggleTask(task.id)}
+                  onEdit={() => toast.info('Edit functionality coming soon!')}
+                  onDelete={() => handleDeleteTask(task.id)}
                 />
               </div>
             ))

@@ -81,6 +81,8 @@ export const CreateTaskDialog = ({ open, onOpenChange, onTaskCreate }: CreateTas
         toast.message(`Creating tasks for ${selectedStudents.length} students...`);
 
         let successCount = 0;
+        let notificationSuccessCount = 0;
+        let notificationFailCount = 0;
 
         for (const student of selectedStudents) {
             const newTask = {
@@ -94,32 +96,98 @@ export const CreateTaskDialog = ({ open, onOpenChange, onTaskCreate }: CreateTas
                 questionContent: taskData.questionContent
             };
 
-            // Call parent handler for each (usually adds to DB)
-            // Note: onTaskCreate might assume single call currently, but in Tasks.tsx it likely just refreshes or appends.
-            // If onTaskCreate just refreshes, calling it once at end is better.
-            // If it appends locally, we need to call it for each.
-            // Let's assume we maintain local state in parent. 
-            // We will call it for each to be safe for now, or check parent.
-            // Wait, usually onTaskCreate is `addTask(newTask)`. 
-            // Let's call it for each.
-            await onTaskCreate(newTask);
+            try {
+                // Create the task
+                await onTaskCreate(newTask);
+                successCount++;
 
-            // Notification
-            if (student.mobile) {
-                const message = `*New Task Assigned: ${taskData.title}*\n\n${taskData.questionContent ? `Question: ${taskData.questionContent}\n\n` : ''}📅 Due Date: ${taskData.dueDate}\n\nPlease submit by the deadline.`;
-                try {
-                    await api.post('/api/send', {
-                        number: student.mobile,
-                        message: message
-                    });
-                } catch (e) {
-                    console.error('Notification failed for', student.name);
+                // Send WhatsApp notification
+                if (student.mobile) {
+                    const message = `*New Task Assigned: ${taskData.title}*\n\n${taskData.questionContent ? `Question: ${taskData.questionContent}\n\n` : ''}📅 Due Date: ${taskData.dueDate}\n\nPlease submit by the deadline.`;
+
+                    // Sanitize phone number: remove spaces, dashes, and handle country code
+                    let sanitizedNumber = student.mobile
+                        .replace(/\s+/g, '') // Remove all spaces
+                        .replace(/-/g, '')   // Remove dashes
+                        .replace(/\(/g, '')  // Remove opening parenthesis
+                        .replace(/\)/g, ''); // Remove closing parenthesis
+
+                    // Remove +91 prefix if present (backend will add it)
+                    if (sanitizedNumber.startsWith('+91')) {
+                        sanitizedNumber = sanitizedNumber.substring(3);
+                    } else if (sanitizedNumber.startsWith('91') && sanitizedNumber.length === 12) {
+                        sanitizedNumber = sanitizedNumber.substring(2);
+                    }
+
+                    console.log(`📱 Sending to ${student.name}: ${student.mobile} → ${sanitizedNumber}`);
+
+                    try {
+                        const response = await api.post('/api/send', {
+                            number: sanitizedNumber,
+                            message: message
+                        });
+
+                        // Consider it successful if:
+                        // 1. response.data.success is true, OR
+                        // 2. status is 200 and no explicit error
+                        const isSuccess = response.data?.success === true ||
+                            (response.status === 200 && !response.data?.error);
+
+                        if (isSuccess) {
+                            notificationSuccessCount++;
+                            console.log(`✅ WhatsApp sent to ${student.name} (${student.mobile})`);
+                        } else {
+                            notificationFailCount++;
+                            console.warn(`⚠️ WhatsApp failed for ${student.name}: ${response.data?.message || response.data?.error || 'Unknown error'}`);
+                        }
+                    } catch (error: any) {
+                        notificationFailCount++;
+
+                        // Detailed error logging for debugging
+                        const errorMsg = error.response?.data?.message ||
+                            error.response?.data?.error ||
+                            error.message ||
+                            'Unknown error';
+                        const statusCode = error.response?.status || 'N/A';
+
+                        console.error(`❌ WhatsApp error for ${student.name}:`, {
+                            status: statusCode,
+                            message: errorMsg,
+                            mobile: student.mobile,
+                            sanitized: sanitizedNumber,
+                            fullError: error
+                        });
+                    }
+                } else {
+                    notificationFailCount++;
+                    console.warn(`⚠️ No mobile number for ${student.name}`);
                 }
+            } catch (error) {
+                console.error(`Failed to create task for ${student.name}:`, error);
+                toast.error(`Failed to assign task to ${student.name}`);
             }
-            successCount++;
         }
 
-        toast.success(`Assigned task to ${successCount} students`);
+        // Show comprehensive feedback
+        if (successCount > 0) {
+            toast.success(`✅ Task assigned to ${successCount} students successfully!`);
+        }
+
+        if (notificationSuccessCount > 0) {
+            toast.success(`📱 WhatsApp notifications sent to ${notificationSuccessCount} students`);
+        }
+
+        if (notificationFailCount > 0) {
+            // More helpful message when WhatsApp fails
+            const failMessage = notificationFailCount === selectedStudents.length
+                ? `⚠️ Tasks created successfully, but WhatsApp notifications couldn't be sent. You can notify students manually from the WhatsApp page.`
+                : `⚠️ ${notificationFailCount} WhatsApp notifications failed. Tasks are created successfully. You can send messages manually from the WhatsApp page.`;
+
+            toast.warning(failMessage, {
+                duration: 6000, // Show longer for important message
+            });
+        }
+
         onOpenChange(false);
     };
 

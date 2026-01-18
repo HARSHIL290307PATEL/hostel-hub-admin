@@ -11,10 +11,28 @@ export const API_BASE_URL = import.meta.env.VITE_API_URL || "http://72.60.97.177
 
 const api = axios.create({
     baseURL: API_BASE_URL,
+    timeout: 30000, // 30 second timeout
     headers: {
         'Content-Type': 'application/json',
         "ngrok-skip-browser-warning": "true",
     },
 });
 
+// Add response interceptor for better error handling
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        // Log detailed error for debugging
+        console.error('API Error:', {
+            url: error.config?.url,
+            method: error.config?.method,
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message
+        });
+        return Promise.reject(error);
+    }
+);
+
 export default api;
+

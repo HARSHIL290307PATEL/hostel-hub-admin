@@ -7,3 +7,6 @@ debug-*.js
 .wwebjs_auth
 .wwebjs_cache
 dev-dist
+
+# Installers
+*.run

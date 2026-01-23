@@ -415,6 +415,8 @@ const AddStudent = () => {
                   year: '2nd Year',
                   result: '8.5',
                   interest: 'Coding',
+                  job: '',
+                  college: 'XYZ University',
                   isAlumni: false,
                   createdAt: new Date().toISOString()
                 }]}

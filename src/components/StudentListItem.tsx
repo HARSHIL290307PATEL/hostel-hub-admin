@@ -1,5 +1,5 @@
 import React from 'react';
-import { GraduationCap, Phone, MessageCircle } from 'lucide-react';
+import { GraduationCap, Phone, MessageCircle, Hash } from 'lucide-react';
 import { Student } from '@/types';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -15,6 +15,11 @@ interface StudentListItemProps {
 
 export const StudentListItem = ({ student, onClick, hideContactActions = false }: StudentListItemProps) => {
   const [tags, setTags] = useState<Karyakarta[]>([]);
+  const [imgError, setImgError] = useState(false);
+
+  useEffect(() => {
+    setImgError(false);
+  }, [student.profileImage]);
 
   useEffect(() => {
     getCategories().then(cats => {
@@ -44,15 +49,19 @@ export const StudentListItem = ({ student, onClick, hideContactActions = false }
       onClick={onClick}
       className="w-full flex items-center gap-3 sm:gap-4 p-3 sm:p-5 glass-card rounded-2xl shadow-soft transition-all duration-300 hover:shadow-soft-lg hover:scale-[1.01] active:scale-[0.99] animate-fade-in text-left cursor-pointer group"
     >
-      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl overflow-hidden shadow-soft group-hover:shadow-soft-lg transition-all shrink-0">
-        <img
-          src={student.profileImage || '/placeholder.svg'}
-          alt={student.name}
-          className="w-full h-full object-cover"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = '/placeholder.svg';
-          }}
-        />
+      <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl overflow-hidden shadow-soft group-hover:shadow-soft-lg transition-all shrink-0 bg-primary/10 flex items-center justify-center">
+        {student.profileImage && !imgError ? (
+          <img
+            src={student.profileImage}
+            alt={student.name}
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <span className="text-xs sm:text-sm font-bold text-primary truncate max-w-full px-1">
+            {student.roomNo || '?'}
+          </span>
+        )}
       </div>
 
       <div className="flex-1 min-w-0">
@@ -66,8 +75,8 @@ export const StudentListItem = ({ student, onClick, hideContactActions = false }
           )}
         </div>
         <div className="flex items-center gap-1.5 text-muted-foreground">
-          <Phone className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
-          <p className="text-xs sm:text-sm font-medium truncate">{student.mobile || 'No Mobile'}</p>
+          <Hash className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          <p className="text-xs sm:text-sm font-medium truncate">Room {student.roomNo || 'N/A'}</p>
         </div>
       </div>
 

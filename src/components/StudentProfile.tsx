@@ -13,12 +13,9 @@ interface StudentProfileProps {
     hideEditAction?: boolean;
 }
 
-import { StudentResultsDialog } from './StudentResultsDialog';
-
 export const StudentProfile = ({ student, onClose, onUpdate, hideEditAction = false }: StudentProfileProps) => {
     const navigate = useNavigate();
     const { toast } = useToast();
-    const [isResultsOpen, setIsResultsOpen] = React.useState(false);
 
     const handleMoveToAlumni = async () => {
         try {
@@ -198,7 +195,7 @@ export const StudentProfile = ({ student, onClose, onUpdate, hideEditAction = fa
                                     <div
                                         key={item.label}
                                         className={`flex items-center gap-4 px-4 py-3 sm:px-6 sm:py-4 transition-colors ${item.label === 'Result/CGPA' ? 'cursor-pointer hover:bg-primary/10' : 'hover:bg-primary/[0.02]'}`}
-                                        onClick={() => item.label === 'Result/CGPA' && setIsResultsOpen(true)}
+                                        onClick={() => item.label === 'Result/CGPA' && navigate(`/students/${student.id}/results`)}
                                     >
                                         <div className="w-10 h-10 rounded-xl bg-muted/30 flex items-center justify-center shrink-0">
                                             {Icon && <Icon className="w-5 h-5 text-muted-foreground" />}
@@ -215,11 +212,7 @@ export const StudentProfile = ({ student, onClose, onUpdate, hideEditAction = fa
                 ))}
             </div>
 
-            <StudentResultsDialog
-                student={student}
-                isOpen={isResultsOpen}
-                onClose={() => setIsResultsOpen(false)}
-            />
+
         </div >
     );
 };

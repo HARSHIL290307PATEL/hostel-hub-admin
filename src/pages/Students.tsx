@@ -89,11 +89,11 @@ const Students = () => {
 
 
 
-            <div className="flex p-1.5 bg-muted/30 backdrop-blur-sm rounded-2xl border border-border/50 shadow-sm">
+            <div className="flex w-full sm:w-auto p-1.5 bg-muted/30 backdrop-blur-sm rounded-2xl border border-border/50 shadow-sm">
               <button
                 onClick={() => setShowAlumni(false)}
                 className={cn(
-                  "px-6 py-2.5 text-sm font-bold rounded-xl transition-all duration-300",
+                  "flex-1 sm:flex-none px-3 sm:px-6 py-2.5 text-sm font-bold rounded-xl transition-all duration-300 whitespace-nowrap",
                   !showAlumni
                     ? "bg-primary text-white shadow-soft"
                     : "text-muted-foreground hover:text-foreground hover:bg-white/50"
@@ -104,7 +104,7 @@ const Students = () => {
               <button
                 onClick={() => setShowAlumni(true)}
                 className={cn(
-                  "px-6 py-2.5 text-sm font-bold rounded-xl transition-all duration-300",
+                  "flex-1 sm:flex-none px-3 sm:px-6 py-2.5 text-sm font-bold rounded-xl transition-all duration-300 whitespace-nowrap",
                   showAlumni
                     ? "bg-primary text-white shadow-soft"
                     : "text-muted-foreground hover:text-foreground hover:bg-white/50"
